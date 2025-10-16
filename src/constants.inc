@@ -6,3 +6,8 @@ DEF rLCDC 				equ $FF40
 DEF VRAM_TILES 			equ $8000
 DEF rBGP				equ $FF47
 DEF rOBP0 				equ $FF48
+
+
+DEF TILEMAP_START 		equ $9800
+DEF WRAM_START 			equ $C000
+DEF OAM_START 			equ	$FE00

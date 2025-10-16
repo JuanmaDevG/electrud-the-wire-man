@@ -26,6 +26,14 @@ main::
    ;; CARGAR TILEMAP
    ;; CARGAR SPRITE PERSONAJE PRINCIPAL
 
+   .inicializo_parpadeo:            ;; esto no me mola nada aquí, provisional
+      xor a
+      ld hl, blink_state
+      ld [hl], a
+      ld a, 20 
+      ld hl, blink_timer
+      ld [hl], a
+
    call lcdc_on
 
    .mainloop:
@@ -34,18 +42,23 @@ main::
       ;; render
 
 
-
       ;; check-end
 
 
-
       ;; user_input
-
-      ;;Si está pulsada la b (el botón de la B), comprobar transformación
-      ;;call check_transformation: en esta subrutina comprobaremos que se está pulsando la b y entonces se transforma
+      ;;Si está pulsada la b (el botón de la B), comprobar transformación (en simulation)
 
       ;; simulate
+      call sys_player_anim_update
+      
+      ;; 
+      ;; call check_transformation: en esta subrutina comprobaremos que se está pulsando la b y entonces se transforma
 
+      ;; Y ya por último, actualizamos OAM
+      ld hl, WRAM_START
+      ld de, OAM_START
+      ld b, 8                 ;; de momento copiamos 8 bytes para no copiar contadores provisionales
+      call memcpy_256
 
       jr .mainloop
 
