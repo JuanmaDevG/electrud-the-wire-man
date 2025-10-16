@@ -1,0 +1,8 @@
+DEF rLY 				equ $FF44
+DEF VBLANK_START_LINE 	equ $90
+
+DEF rLCDC 				equ $FF40
+
+DEF VRAM_TILES 			equ $8000
+DEF rBGP				equ $FF47
+DEF rOBP0 				equ $FF48

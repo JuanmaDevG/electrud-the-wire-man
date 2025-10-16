@@ -65,3 +65,13 @@ DB $0D,$0D,$32,$32,$C4,$C4,$08,$08
 ; dash phase 2
 DB $C0,$C0,$30,$30,$CC,$CC,$33,$33
 DB $33,$33,$CC,$CC,$30,$30,$C0,$C0
+
+; tiles muro 
+DB $FF, $FF, $FF, $E1, $FF, $C3, $FF, $87
+DB $FF, $8F, $FF, $9F, $FF, $BD, $FF, $FF
+
+
+electrud_sprite::
+	DB $0C*8 + 16, 	$08, 	$0A, $00   ;; cola serpiente
+	DB $0C*8 + 16, 	$08+8, 	$0A, $00   ;; cola ""
+	DB $0C*8 + 16, 	$08+16, $08, $00   ;; cabeza
