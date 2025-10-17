@@ -1,4 +1,4 @@
-
+INCLUDE "constants.inc"
 
 SECTION "Electrud data", ROM0
 electrud_tiles::
@@ -71,9 +71,13 @@ DB $FF, $FF, $FF, $E1, $FF, $C3, $FF, $87
 DB $FF, $8F, $FF, $9F, $FF, $BD, $FF, $FF
 
 
-electrud_sprite::
-	DB $0B*8 + 16, 	$08, 	$01, $00   ;; cabeza electrud
-	DB $0C*8 + 16, 	$08, 	$03, $00   ;; cuerpo ""
+electrud_sprites_def:
+	DB $0B*8 + 16, 	$01*8 + 8, 	$01, $00	;; cabeza electrud
+	DB $0C*8 + 16, 	$01*8 + 8, 	$03, $00	;; cuerpo ""
+
+
+electrud_physics_cmp:
+	DB $01, $01, $80, TRANSF_CNT		;; tenemos: velocidad - contador de frames para velocidad - flags - contador de transformación
 
 	;; TILES DE ELECTRUD-SERPIENTE
 	;DB $0C*8 + 16, 	$08, 	$0A, $00   ;; cola serpiente
@@ -81,6 +85,3 @@ electrud_sprite::
 	;DB $0C*8 + 16, 	$08+16, $08, $00   ;; cabeza
 
 
-SECTION "Electrud state", WRAM0 
-blink_timer: 	DS 1 		; contador = 10 para cabeza normal    ; contador = 4 para cabeza brillante
-blink_state: 	DS 1 		; 0 = cabeza normal   ; 1 = cabeza brillante

@@ -1,7 +1,6 @@
 INCLUDE "constants.inc"
 
 
-
 SECTION "Game Engine", ROM0
 
 tiles_init::
@@ -45,14 +44,21 @@ tiles_init::
 		xor a
 		call memset_256
 
-	.load_electrud:
+	.load_electrud_sprite:
 	;; Ahora ya podemos cargar una entidad
 	;; Primero cargamos el sprite en la WRAM
-	ld hl, electrud_sprite
-	ld de, WRAM_START
-	ld a, $08
-	ld b, 12 					;; son 3 sprites (3 sprites x 4bytes cada uno)
+	ld hl, electrud_sprites_def
+	ld de, electrud_sprite_component
+	ld b, 8 					;; son 2 sprites (2 sprites x 4bytes cada uno)
 	call memcpy_256
+
+	;; también queremos cargar la componente de física (solo cogemremos una como cabeza) en WRAM
+	.load_electrud_physics:
+		ld hl, electrud_physics_cmp
+		ld de, electrud_physics
+		ld b, 12
+		call memcpy_256
+
 
 	;; Y luego lo copiamos a la OAM
 	ld hl, WRAM_START

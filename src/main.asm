@@ -26,14 +26,19 @@ main::
    ;; CARGAR TILEMAP
    ;; CARGAR SPRITE PERSONAJE PRINCIPAL
 
+   ; Inicializo variables
+   xor a
+   ; Botones
+   ld [B_button], a
    .inicializo_parpadeo:            ;; esto no me mola nada aquí, provisional
       xor a
       ld hl, blink_state
       ld [hl], a
-      ld a, 20 
+      ld a, BLINK_COUNTER_1 
       ld hl, blink_timer
       ld [hl], a
 
+   ;; Encendemos la pantalla
    call lcdc_on
 
    .mainloop:
@@ -46,18 +51,36 @@ main::
 
 
       ;; user_input
+      
+      call leer_buttons
+      ; tenemos el botón leído almacenado en a, y ahora leemos el bit que se ha pulsado
+      call process_button
+      ; si la b se ha pulsado menos tiempo que E_TC, entonces dispara
+      ; si se ha pulsado durante E_TC, transformar
+
       ;;Si está pulsada la b (el botón de la B), comprobar transformación (en simulation)
 
       ;; simulate
       call sys_player_anim_update
       
-      ;; 
-      ;; call check_transformation: en esta subrutina comprobaremos que se está pulsando la b y entonces se transforma
+      ld a, [B_button]
+      or a
+      jr z, .no_check_transf
+
+      call check_transformation
+      jp .end_simulate
+      
+      .no_check_transf:
+         ld hl, electrud_physics + E_TC
+         ld a, TRANSF_CNT
+         ld [hl], a
+
+      .end_simulate:
 
       ;; Y ya por último, actualizamos OAM
       ld hl, WRAM_START
       ld de, OAM_START
-      ld b, 8                 ;; de momento copiamos 8 bytes para no copiar contadores provisionales
+      ld b, 12                 ;; de momento copiamos 12 bytes para no copiar contadores provisionales
       call memcpy_256
 
       jr .mainloop

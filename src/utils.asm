@@ -54,6 +54,7 @@ memcpy_256::
 	jr nz, .loop
 	ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; HL: destination
 ;;  B: bytes
 ;;  A: value to set
@@ -62,4 +63,72 @@ memset_256::
 		ld [hl+], a
 		dec b 
 	jr nz, .loop
+	ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DESTROYS: A
+;; 
+leer_joypad::
+    ld a, $20
+    ld [$FF00], a
+    ld a, [$FF00] 
+    ld a, [$FF00] 
+    ld a, [$FF00] 
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DESTROYS: A
+;; 
+leer_buttons::
+    ld a, $10
+    ld [$FF00], a
+    ld a, [$FF00] 
+    ld a, [$FF00] 
+    ld a, [$FF00] 
+ret
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DESTROYS: A
+;; 
+process_button:
+	ld b, a
+	xor a
+   	ld [A_button], a
+   	ld [B_button], a
+   	ld [SELECT_button], a
+   	ld [START_button], a
+
+   	ld a, b 
+	bit 0, a 
+	jr z, .A_button_pressed
+	bit 1, a
+	jr z, .B_button_pressed
+	bit 2, a
+	jr z, .SELECT_button_pressed
+	bit 3, a
+	jr z, .START_button_pressed
+
+	jp .end_processing
+
+	.A_button_pressed:
+		ld a, 1
+		ld [A_button], a 
+	jp .end_processing
+
+	.B_button_pressed:
+		ld a, 1
+		ld [B_button], a 
+	jp .end_processing
+
+	.SELECT_button_pressed:
+		ld a, 1
+		ld [SELECT_button], a
+	jp .end_processing
+
+	.START_button_pressed:
+		ld a, 1
+		ld [START_button], a
+
+	.end_processing:
 	ret
