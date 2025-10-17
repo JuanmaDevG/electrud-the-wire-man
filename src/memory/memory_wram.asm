@@ -20,8 +20,8 @@ blink_state: 	DS 1 		; 0 = cabeza normal   ; 1 = cabeza brillante
 
 SECTION "Botones data", WRAM0
 ;====== PARA TODOS: 0 = NO PULSADO ; 1 = PULSADO ======;
-
 A_button: 			DS 1 	
-B_button: 		DS 1
+B_button: 			DS 1
 SELECT_button: 		DS 1
 START_button: 		DS 1
+

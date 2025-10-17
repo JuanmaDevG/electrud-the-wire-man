@@ -65,16 +65,28 @@ main::
       
       ld a, [B_button]
       or a
-      jr z, .no_check_transf
+      jr z, .check_firing
 
       call check_transformation
       jp .end_simulate
       
-      .no_check_transf:
+      ; Si no se ha pulsado la tecla b, hay 2 opciones
+      ; Que se haya pulsado antes pero no se ha mantenido lo suficiente, por lo tanto HAY QUE DISPARAR
+      ; O simplemente que no se ha pulsado
+      .check_firing:
          ld hl, electrud_physics + E_TC
-         ld a, TRANSF_CNT
-         ld [hl], a
+         ld a, [hl]
+         cp TRANSF_CNT
+      jr z, .no_firing           ; Si eran iguales (zero), es que no se había pulsado antes el botón
 
+      ; En caso de que SÍ se hubiera pulsado, entonces habrá que llamar a la subrutina correspondiente
+      ; call power_up
+
+      ld a, TRANSF_CNT
+      ld [hl], a
+
+      .no_firing:
+         ;; igual hay algo más por hacer aquí
       .end_simulate:
 
       ;; Y ya por último, actualizamos OAM

@@ -15,6 +15,7 @@ wait_vblank_start::
 	jr nz, .loop
 	ret
 
+; Como dijo el profe, apagado seguro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DESTROYS: F, HL
 ;;
