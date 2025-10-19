@@ -20,7 +20,7 @@ SECTION "Entry point", ROM0[$150]
 
 main::
    call lcdc_off
-   ;;; INIT
+   call load_engine
    call tiles_init
    ;; CARGAR TILES A VRAM
    ;; CARGAR TILEMAP

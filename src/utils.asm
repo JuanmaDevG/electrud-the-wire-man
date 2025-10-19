@@ -55,6 +55,23 @@ memcpy_256::
 	jr nz, .loop
 	ret
 
+;; HL: source
+;; DE: destination
+;; BC: bytes
+memcpy::
+  .loop:
+    ld a, [hl+]
+    ld [de], a
+    inc de
+    dec c
+    jr nz, .loop
+    xor a
+    cp b
+    ret z
+    dec b
+    ld c, $ff
+    jr .loop
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; HL: destination
 ;;  B: bytes

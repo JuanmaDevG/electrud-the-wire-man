@@ -1,10 +1,10 @@
-if !def(FONT_INC)
-  def FONT_INC equ 1
+if !def(ASSETS_INC)
+  def ASSETS_INC equ 1
 
-def FONT_TILES = 66
-
-; And including white space
-def FONT_CHARACTERS = 67
+def TILE_SIZE equ 16
+def FONT_TILE_COUNT equ 66
+def FONT_CHARACTER_COUNT equ 67
+def ELECTRUD_TILE_COUNT equ 21
 
 NEWCHARMAP ingame_font, main
 CHARMAP "1", 1
@@ -75,4 +75,4 @@ CHARMAP "'", 65
 CHARMAP "?", 66
 CHARMAP " ", 67
 
-endc ; FONT_INC
+endc ; ASSETS_INC

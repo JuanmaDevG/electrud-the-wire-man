@@ -13,6 +13,7 @@ electrud_physics: DS 12
 
 ;;;;;; OTRAS SECCIONES ;;;;;;;;;;;;;;,
 
+; TODO: esto debería estar en una posición específica de la wram (para el futuro)
 SECTION "Electrud state", WRAM0 
 blink_timer: 	DS 1 		; contador = 10 para cabeza normal    ; contador = 4 para cabeza brillante
 blink_state: 	DS 1 		; 0 = cabeza normal   ; 1 = cabeza brillante

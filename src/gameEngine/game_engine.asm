@@ -1,13 +1,31 @@
 INCLUDE "constants.inc"
+include "assets.inc"
 
 
 SECTION "Game Engine", ROM0
 
+load_engine::
+    .load_tiles:
+    ld hl, font_tiles
+    ld de, _VRAM + TILE_SIZE
+    ld bc, FONT_TILE_COUNT * TILE_SIZE
+    call memcpy
+    ld hl, electrud_tiles
+    ld de, _VRAM + (FONT_CHARACTER_COUNT * TILE_SIZE)
+    ld bc, ELECTRUD_TILE_COUNT * TILE_SIZE
+    call memcpy
+    .set_palettes:
+    ld a, %11100100
+    ld hl, rBGP
+    ld a, [hl+]
+    ld a, [hl]
+    .initial_scene:
+    ;TODO: design bricks, make the scroll system and make the level intelligent with respective screen coordinates
+    ;TODO: the level will be completely horizontal and have collisions
+
 tiles_init::
 	.load_tiles:
 		;; queremos primero cargar los tiles
-		ld hl, electrud_tiles
-		ld de, VRAM_TILES + 16
 		ld b, 256    			;; 256 % 16 = 16 tiles
 		call memcpy_256
 		ld b, 16*6 				;; los tiles que quedan por cargar
@@ -23,7 +41,7 @@ tiles_init::
     .pintar_tilemap:
 	    ;; Vamos a pintar un tilemap
 	    ld hl, tilemap_scene01
-	    ld de, TILEMAP_START
+	    ld de, _SCRN0
 	    ld b, 256
 	    call memcpy_256
 	    call memcpy_256
@@ -33,13 +51,13 @@ tiles_init::
 	;; vacíar la WRAM
 	.set_wram:
 		xor a 
-		ld hl, WRAM_START   	;; SECTION "Sprite Components", WRAM [$C000]
+		ld hl, _WRAM   	;; SECTION "Sprite Components", WRAM [$C000]
 		ld b, 160 			 	;; CMP_SPRITES_SIZE = SPRITE_SIZE (4) * NUM_TOTAL_SPRITES (40 ó 64)
 		call memset_256
 
 	.set_oam:
 		;; vaciar la OAM
-		ld hl, OAM_START 		;; DEF OAM_START equ $FE00
+		ld hl, _OAM 		;; DEF OAM_START equ $FE00
 		ld b, 160
 		xor a
 		call memset_256

@@ -1,7 +1,17 @@
 if !def(ELECTRUD_INC)
   def ELECTRUD_INC
 
-def ELECTRUD_TILE_COUNT = 21
+DEF E_BIT_ALIVE 		equ 7
+DEF E_BIT_RAYSNAKE 		equ 6
+DEF E_BIT_JMP			equ 5
+DEF E_BIT_WALK			equ 4
+
+DEF E_BIT_MV_RIGHT		equ 3
+DEF E_BIT_MV_LEFT		equ 2
+DEF E_BIT_MV_UP			equ 1
+DEF E_BIT_MV_DOWN 		equ 0
+
+def E_TRANSF_CNT equ 90
 
 rsreset
 ELECTRUD_HEAD rb 16,
