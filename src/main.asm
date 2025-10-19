@@ -50,18 +50,19 @@ main::
       ;; check-end
 
 
-      ;; user_input
-      
-      call leer_buttons
-      ; tenemos el botón leído almacenado en a, y ahora leemos el bit que se ha pulsado
-      call process_button
-      ; si la b se ha pulsado menos tiempo que E_TC, entonces dispara
-      ; si se ha pulsado durante E_TC, transformar
+      ;; user_input:    joypad[direcciones]    &     buttons [A,B,SELECT,START]
+      .user_input:
+         call leer_joypad
+         call process_joypad
 
-      ;;Si está pulsada la b (el botón de la B), comprobar transformación (en simulation)
+         call leer_buttons       ; tenemos el botón leído almacenado en a, y ahora leemos el bit que se ha pulsado
+         call process_button
+         ; si la b se ha pulsado menos tiempo que E_TC, entonces dispara
+         ; si se ha pulsado durante E_TC, transformar
 
       ;; simulate
       call sys_player_anim_update
+      call move_electrud_raysnake
       
       ld a, [B_button]
       or a

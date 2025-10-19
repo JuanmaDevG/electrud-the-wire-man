@@ -158,3 +158,112 @@ check_transformation::
 	.end_check_tc:
 	ret
 
+
+
+
+
+move_electrud_raysnake::
+	.check_move_counter:
+		; PRIMERO COMPROBAMOS EL CONTADOR DE VELOCIDAD PARA VER SI TIENE QUE MOVERSE YA O NO
+		ld hl, electrud_physics + E_V_CONT
+		ld a, [hl]
+		dec a  					; Decrementamos el contador 
+		ld [hl], a
+		cp 0 					; Comprobamos si es 0 y hay que mover
+		jp nz, .not_move
+
+	;;MOVER DERECHA
+	.move_right:
+		;Primero comprobar si hay que mover a la derecha
+		ld hl, electrud_physics + E_EL_FL
+		bit E_BIT_MV_RIGHT, [hl]
+		jr z, .move_left
+
+		; ========== IMPORTANTE ===============
+		; ¿ROTAR TILES DERECHA?
+
+		;Movemos la cabeza
+		ld hl, electrud_sprite_head + E_X
+		ld a, [hl]
+		add PASO_MOVIMIENTO
+		ld [hl], a
+
+		;Movemos el cuerpo
+		ld hl, electrud_sprite_body + E_X
+		ld a, [hl]
+		add PASO_MOVIMIENTO
+		ld [hl], a 
+
+		;Es raysnake? MOVER LA SEGUNDA COLA TAMBIÉN !!
+		ld hl, electrud_physics + E_EL_FL
+		bit E_BIT_RAYSNAKE, [hl]
+		jr nz, .move_raysnake_right
+
+		jp .end_moving
+
+
+	;;MOVER IZQUIERDA
+	.move_left:
+		;Primero comprobar si hay que mover a la izquierda
+		bit E_BIT_MV_LEFT, [hl]
+		jr z, .move_another
+
+		; ========== IMPORTANTE ===============
+		; ¿ROTAR TILES IZQUIERDA?
+
+		;Movemos la cabeza
+		ld hl, electrud_sprite_head + E_X
+		ld a, [hl]
+		sub PASO_MOVIMIENTO
+		ld [hl], a
+
+		;Movemos el cuerpo
+		ld hl, electrud_sprite_body + E_X
+		ld a, [hl]
+		sub PASO_MOVIMIENTO
+		ld [hl], a 
+
+		;Es raysnake? MOVER LA SEGUNDA COLA TAMBIÉN !!
+		ld hl, electrud_physics + E_EL_FL
+		bit E_BIT_RAYSNAKE, [hl]
+		jr nz, .move_raysnake_left
+		
+		jp .end_moving
+
+
+	.move_another:
+		; Queda comprobar el salto de electrud por un lado
+		; Y por otro lado queda comprobar move_up y move_down de raysnake
+		jp .end_moving
+
+	.move_raysnake_right:
+		;Movemos la segunda cola de raysnake
+		ld hl, raysnake_sprite_tile + E_X
+		ld a, [hl]
+		add PASO_MOVIMIENTO
+		ld [hl], a 
+
+		jp .end_moving
+
+	.move_raysnake_left:
+		;Movemos la segunda cola de raysnake
+		ld hl, raysnake_sprite_tile + E_X
+		ld a, [hl]
+		sub PASO_MOVIMIENTO
+		ld [hl], a 
+
+		jp .end_moving
+
+
+	.end_moving:
+		ld hl, electrud_physics + E_V_CONT
+		ld a, [hl]
+		ld a, SPEED_COUNTER 					; Reiniciamos el contador
+		ld [hl], a
+
+	.not_move:
+
+ret
+
+
+

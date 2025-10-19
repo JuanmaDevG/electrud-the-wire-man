@@ -90,7 +90,7 @@ ret
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; DESTROYS: A
+;; DESTROYS: A, B
 ;; 
 process_button:
 	ld b, a
@@ -130,6 +130,48 @@ process_button:
 	.START_button_pressed:
 		ld a, 1
 		ld [START_button], a
+
+	.end_processing:
+	ret
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DESTROYS: HL, A
+;; 
+process_joypad:
+	;Primero reseteamos todos los bits a 0 para registrar de nuevo los movimientos bien
+	ld hl, electrud_physics + E_EL_FL
+	res E_BIT_MV_RIGHT, [hl]
+	res E_BIT_MV_LEFT, 	[hl]
+	res E_BIT_MV_UP, 	[hl]
+	res E_BIT_MV_DOWN, 	[hl]
+
+	bit 0, a 
+	jr z, .right_button_pressed
+	bit 1, a
+	jr z, .left_button_pressed
+	bit 2, a
+	jr z, .up_button_pressed
+	bit 3, a
+	jr z, .down_button_pressed
+
+	jp .end_processing
+
+	.right_button_pressed:
+		set E_BIT_MV_RIGHT, [hl]
+	jp .end_processing
+
+	.left_button_pressed:
+		set E_BIT_MV_LEFT, [hl]
+
+	jp .end_processing
+
+	.up_button_pressed:
+		set E_BIT_MV_UP, [hl]
+	jp .end_processing
+
+	.down_button_pressed:
+		set E_BIT_MV_DOWN, [hl]
 
 	.end_processing:
 	ret
