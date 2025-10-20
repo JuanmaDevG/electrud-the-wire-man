@@ -1,6 +1,6 @@
 INCLUDE "constants.inc"
 
-SECTION "Electrud data", ROM0
+SECTION "Electrud tiles", ROM0
 electrud_tiles::
 ; head
 DB $54,$54,$AA,$AA,$7C,$7C,$C2,$FE
@@ -65,10 +65,6 @@ DB $0D,$0D,$32,$32,$C4,$C4,$08,$08
 ; dash phase 2
 DB $C0,$C0,$30,$30,$CC,$CC,$33,$33
 DB $33,$33,$CC,$CC,$30,$30,$C0,$C0
-
-; tiles muro 
-DB $FF, $FF, $FF, $E1, $FF, $C3, $FF, $87
-DB $FF, $8F, $FF, $9F, $FF, $BD, $FF, $FF
 
 
 electrud_sprites_def:

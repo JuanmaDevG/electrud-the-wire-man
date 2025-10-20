@@ -1,6 +1,12 @@
 if !def(CONSTANTS_INC)
   def CONSTANTS_INC equ 1
 
+;;;;;;;;;;;;;;;;;;;;;;;
+; Generic definitions ;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+def TILE_SIZE equ 16
+
 ;;;;;;;;;;;;;;;;;;
 ; Memory regions ;
 ;;;;;;;;;;;;;;;;;;

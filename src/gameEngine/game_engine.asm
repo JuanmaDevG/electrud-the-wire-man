@@ -1,5 +1,6 @@
 INCLUDE "constants.inc"
-include "assets.inc"
+include "font.inc"
+includee "electrud.inc"
 
 
 SECTION "Game Engine", ROM0
@@ -11,7 +12,7 @@ load_engine::
     ld bc, FONT_TILE_COUNT * TILE_SIZE
     call memcpy
     ld hl, electrud_tiles
-    ld de, _VRAM + (FONT_CHARACTER_COUNT * TILE_SIZE)
+    ld de, _VRAM + TILE_SIZE + (FONT_CHAR_COUNT * TILE_SIZE)
     ld bc, ELECTRUD_TILE_COUNT * TILE_SIZE
     call memcpy
     .set_palettes:
