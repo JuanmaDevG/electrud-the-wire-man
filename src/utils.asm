@@ -72,6 +72,13 @@ memcpy::
     ld c, $ff
     jr .loop
 
+;; HL: source
+;; DE: dest
+;; BC: bytes
+memset::
+;TODO: full 16bit memset
+  ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; HL: destination
 ;;  B: bytes
@@ -104,6 +111,33 @@ leer_buttons::
     ld a, [$FF00] 
     ld a, [$FF00] 
 ret
+
+
+;; DESTROYS: B, C
+;; RETURN: B (joy_down, joy_up, joy_left, joy_right, start, select, B, A)
+get_input::
+  ld c, $00
+  ld a, SELECT_BUTTONS
+  ldh [c], a
+  ldh a, [c]
+  ldh a, [c]
+  ldh a, [c]
+  cpl
+  and $0f
+  ld b, a
+  swap b
+  ld a, SELECT_JOYPAD
+  ldh [c], a
+  ldh a, [c]
+  ldh a, [c]
+  ldh a, [c]
+  cpl
+  and $0f
+  or b
+  ld b, a
+  ld a, SELECT_NONE
+  ldh [c], a
+  ret
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
