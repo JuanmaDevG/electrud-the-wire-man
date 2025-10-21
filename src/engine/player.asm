@@ -1,7 +1,7 @@
 INCLUDE "constants.inc"
 
 
-SECTION "Animación Electrud", ROM0 
+SECTION "Player functions", ROM0 
 
 
 
