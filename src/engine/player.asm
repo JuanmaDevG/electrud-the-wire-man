@@ -2,9 +2,6 @@ INCLUDE "constants.inc"
 
 
 SECTION "Player functions", ROM0 
-
-
-
 sys_player_anim_update::
 	.comprobar_contador:
 		ld hl, blink_timer		;; comprobamos si ha llegado a 0

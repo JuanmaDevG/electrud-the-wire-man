@@ -117,4 +117,16 @@ DEF E_V_CONT	RB 1		;; CONTADOR DE FRAMES PARA MOVERSE MÁS O MENOS RÁPIDO
 DEF E_EL_FL 	RB 1		;; ELECTRUD FLAGS
 DEF E_TC		RB 1		;; TRANSFORMER COUNTER
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Generic game map definitions ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+def SCRN_LINE_JUMP equ $20
+def SCRN_TILE_WIDTH equ 19
+def SCRN_TILE_HEIGHT equ 18
+
+def MAP_GROUND equ _SCRN0 + (SCRN_LINE_JUMP * (SCRN_LINE_HEIGHT -1))
+
+
 endc ; CONSTANTS_INC

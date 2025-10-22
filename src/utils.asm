@@ -59,10 +59,14 @@ memcpy::
     ld c, $ff
     jr .loop
 
+
 ;; HL: dest
-;; D: value
+;; A: value
 ;; BC: bytes
 memset::
+  .loop:
+    ld [hl+], a
+    dec c
 ;TODO: full 16bit memset
   ret
 

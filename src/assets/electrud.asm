@@ -1,5 +1,3 @@
-INCLUDE "constants.inc"
-
 SECTION "Electrud tiles", ROM0
 electrud_tiles::
 ; head

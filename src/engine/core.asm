@@ -2,27 +2,37 @@ INCLUDE "constants.inc"
 include "font.inc"
 includee "electrud.inc"
 
+def VRAM_LOAD_POINTER = _VRAM + TILE_SIZE
 
 SECTION "Game Engine", ROM0
 
 load_engine::
     .load_tiles:
     ld hl, font_tiles
-    ld de, _VRAM + TILE_SIZE
+    ld de, VRAM_LOAD_POINTER
     ld bc, FONT_TILE_COUNT * TILE_SIZE
     call memcpy
     ld hl, electrud_tiles
-    ld de, _VRAM + TILE_SIZE + (FONT_CHAR_COUNT * TILE_SIZE)
+    VRAM_LOAD_POINTER += (FONT_CHAR_COUNT * TILE_SIZE)
+    ld de, VRAM_LOAD_POINTER
     ld bc, ELECTRUD_TILE_COUNT * TILE_SIZE
     call memcpy
+    ;TODO: provisional bricks, must change later
+    ld hl, brick_tiles
+    ld de, MAP_GROUND
+    ld bc, 1
     .set_palettes:
     ld a, %11100100
     ld hl, rBGP
     ld a, [hl+]
     ld a, [hl]
     .initial_scene:
-    ;TODO: design bricks, make the scroll system and make the level intelligent with respective screen coordinates
-    ;TODO: the level will be completely horizontal and have collisions
+    ld hl, MAP_GROUND
+    ld a, BRICK; TODO: brick tile def
+    ld bc, 1
+    call memset
+    ;TODO: provisional basic brick load, must change later
+    ;CALL MEMSET
 
 tiles_init::
 	.load_tiles:

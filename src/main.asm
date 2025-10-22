@@ -26,7 +26,7 @@ main::
    xor a
    ; Botones
    ld [B_button], a
-   .inicializo_parpadeo:            ;; esto no me mola nada aquí, provisional
+   .inicializo_parpadeo:
       xor a
       ld hl, blink_state
       ld [hl], a
@@ -38,7 +38,12 @@ main::
    call lcdc_on
 
    .mainloop:
+      call update_electrud
+      call update_entities
+      call update_map_scroll
       call wait_vblank_start
+      call render
+      jr .mainloop
 
       ;; render
 

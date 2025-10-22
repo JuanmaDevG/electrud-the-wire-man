@@ -1,7 +1,7 @@
 if !def(ELECTRUD_INC)
   def ELECTRUD_INC
 
-include "assets.inc"
+include "font.inc"
 
 def ELECTRUD_TILE_COUNT equ 22
 
