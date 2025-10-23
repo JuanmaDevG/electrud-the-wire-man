@@ -67,8 +67,13 @@ memset::
   .loop:
     ld [hl+], a
     dec c
-;TODO: full 16bit memset
-  ret
+    jr nz, .loop
+    xor a
+    cp b
+    ret z
+    dec b
+    ld c, $ff
+    jr .loop
 
 
 ;; HL: destination
@@ -82,8 +87,8 @@ memset_256::
 	ret
 
 
-;; DESTROYS: B, C
-;; RETURN: B (joy_down, joy_up, joy_left, joy_right, start, select, B, A)
+;; DESTROYS: B, C, HL
+;; RETURN: [E_PLAYER_INPUT] (joy_down, joy_up, joy_left, joy_right, start, select, B, A) (inside an electrud component)
 get_input::
   ld c, $00
   ld a, SELECT_BUTTONS
@@ -103,7 +108,8 @@ get_input::
   cpl
   and $0f
   or b
-  ld b, a
+  ld hl, _WRAM + $0100 + E_PLAYER_INPUT
+  ld [hl], a
   ld a, SELECT_NONE
   ldh [c], a
   ret

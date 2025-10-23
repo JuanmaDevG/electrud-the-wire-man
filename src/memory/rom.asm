@@ -1,13 +1,10 @@
-SECTION "Init data", ROM0
-electrud_sprites_def:
-	DB $0B*8 + 16, 	$01*8 + 8, 	$01, $00	;; cabeza electrud
-	DB $0C*8 + 16, 	$01*8 + 8, 	$03, $00	;; cuerpo ""
+include "constants.inc"
+include "electrud.inc"
 
-
-electrud_physics_cmp:
-	DB $01, SPEED_COUNTER, $80, TRANSF_CNT			;;Tenemos:		 Velocidad - contador de frames para velocidad - flags - contador de transformación
-
-	;; TILES DE ELECTRUD-SERPIENTE
-	;DB $0C*8 + 16, 	$08, 	$0A, $00   	;; cola serpiente
-	;DB $0C*8 + 16, 	$08+8, 	$0A, $00   	;; cola ""
-	;DB $0C*8 + 16, 	$08+16, $08, $00   	;; cabeza
+SECTION "Initialization data", ROM0
+electrud_init_sprites::
+  db SCRN_PX_HEIGTH - TILE_PX_WIDTH, TILE_PX_WIDTH * 2, E_TILE_HEAD, $00
+  db SCRN_PX_HEIGHT, TILE_PX_WIDTH * 2, E_TILE_BODY, $00
+electrud_init_physics::
+  db ENT_SPEED_HIGH, ENT_SPEED_HIGH, E_FLAG_ALIVE, E_TRANSFORM_COUNTER_RELOAD
+  db E_BLINK_COUNTER_RELOAD, E_NOT_AVAILABLE_INPUT, E_WALK_STEP_COUNTER_RELOAD

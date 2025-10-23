@@ -6,6 +6,8 @@ if !def(CONSTANTS_INC)
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 def TILE_SIZE equ 16
+def TILE_PX_WIDTH equ 8
+def TILE_PX_HEIGHT equ 8
 
 ;;;;;;;;;;;;;;;;;;
 ; Memory regions ;
@@ -16,6 +18,9 @@ def _OAM equ $fe00
 def _VRAM equ $8000
 def _SCRN0 equ $9800
 def _SCRN1 equ $9c00
+
+def MEM_LINE_SIZE equ 256
+def OAM_BYTESIZE equ 160
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -97,36 +102,44 @@ def INPUT_BIT_RIGHT equ 0
 ; GENERIC ENTITY DEFINITIONS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-DEF BLINK_COUNTER_1 	equ 3
-DEF BLINK_COUNTER_2 	equ 3
+def ENT_SPEED_MAX     equ 0
+def ENT_SPEED_HIGH    equ 1
+def ENT_SPEED_MEDIUM  equ 2
+def ENT_SPEED_MLOW    equ 3
+def ENT_SPEED_LOW     equ 4
+def ENT_SPEED_LOWER   equ 5
+def ENT_SPEED_SNAIL   equ 6
 
-DEF SPEED_COUNTER 		equ 2
-DEF PASO_MOVIMIENTO 	equ 2
+def BLINK_COUNTER_RELOAD equ 3
 
-; CONSTANTES PARA LOS BYTES DEL COMPONENTE DE SPRITE
-RSRESET 
-DEF E_Y 	RB 1
-DEF E_X 	RB 1
-DEF E_TILE 	RB 1
-DEF E_FLAGS RB 1
+; Sprite byte offsets
+rsreset 
+def ENT_Y 	  rb 1
+def ENT_X 	  rb 1
+def ENT_TILE 	rb 1
+def ENT_FLAGS rb 1
 
-;CONSTANTES PARA LOS BYTES DEL COMPONENTE DE PHYSICS
+; Physics byte offsets
 RSRESET
-DEF E_V 		RB 1
-DEF E_V_CONT	RB 1		;; CONTADOR DE FRAMES PARA MOVERSE MÁS O MENOS RÁPIDO
-DEF E_EL_FL 	RB 1		;; ELECTRUD FLAGS
-DEF E_TC		RB 1		;; TRANSFORMER COUNTER
+def ENT_V 		            rb 1
+def ENT_V_COUNTER	        rb 1
+def ENT_FLAGS 	          rb 1
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Generic game map definitions ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Generic screen proportion definitions ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 def SCRN_LINE_JUMP equ $20
-def SCRN_TILE_WIDTH equ 19
-def SCRN_TILE_HEIGHT equ 18
+def SCRN_WIDTH_IN_TILES equ 19
+def SCRN_HEIGHT_IN_TILES equ 18
 
-def MAP_GROUND equ _SCRN0 + (SCRN_LINE_JUMP * (SCRN_LINE_HEIGHT -1))
+def SCRN_PX_WIDTH equ 152
+def SCRN_PX_HEIGHT equ 144
+def SCRN_PX_Y_OFFSET equ 16
+def SCRN_PX_X_OFFSET equ 8
+
+def SCRN_GROUND_TILES equ _SCRN0 + (SCRN_LINE_JUMP * (SCRN_LINE_HEIGHT -1))
 
 
 endc ; CONSTANTS_INC

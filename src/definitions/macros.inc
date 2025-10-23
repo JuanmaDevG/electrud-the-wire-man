@@ -7,4 +7,10 @@ macro Load_hldebc
   ld bc, \3
 endm
 
+macro Load_hlabc
+  ld hl, \1
+  ld a, \2
+  ld bc, \3
+
+
 endc ; MACROS_INC

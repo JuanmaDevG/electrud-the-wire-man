@@ -21,27 +21,12 @@ SECTION "Entry point", ROM0[$150]
 main::
    call lcdc_off
    call load_engine
-
-   ; Inicializo variables
-   xor a
-   ; Botones
-   ld [B_button], a
-   .inicializo_parpadeo:
-      xor a
-      ld hl, blink_state
-      ld [hl], a
-      ld a, BLINK_COUNTER_1 
-      ld hl, blink_timer
-      ld [hl], a
-
-   ;; Encendemos la pantalla
    call lcdc_on
 
    .mainloop:
       call update_electrud
       call update_entities
       call update_map_scroll
-      call wait_vblank_start
       call render
       jr .mainloop
 
