@@ -1,4 +1,4 @@
-INCLUDE "constants.inc"
+include "definitions/constants.inc"
 
 SECTION "utils", ROM0
 ;; DESTROYS: AF, HL

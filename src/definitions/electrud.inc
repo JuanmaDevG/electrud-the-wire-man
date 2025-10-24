@@ -39,7 +39,7 @@ def RSNK_TILE_DASH2                rb 1
 ; Electrud physics components ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Electrud physics component
+; COMPONENT_PHYSICS bytes
 rsreset
 def E_V                     rb 1
 def E_V_COUNTER             rb 1
@@ -65,7 +65,7 @@ def E_FLAG_STEP2      equ %00001000
 def E_FLAG_BLINK      equ %00000100
 
 def E_TRANSFORM_COUNTER_RELOAD equ 90
-def E_BLINK_COUNTER_RELOAD equ 3
+def E_BLINK_COUNTER_RELOAD equ 4
 def E_NOT_AVAILABLE_INPUT equ 0
 def E_WALK_STEP_COUNTER_RELOAD equ 8
 

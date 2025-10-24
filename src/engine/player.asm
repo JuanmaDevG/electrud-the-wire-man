@@ -2,18 +2,53 @@ include "constants.inc"
 include "electrud.inc"
 
 
-SECTION "Player functions", ROM0 
-iterate_player_blink::
+SECTION "Player functions", ROM0
+; PARAM: b = E_PLAYER_INPUT, c = E_FLAGS
+; DESTROY: hl
+flip_player_blink::
   ld hl, COMPONENT_PHYSICS + E_BLINK_COUNTER
   dec [hl]
-  xor a
-  cp [hl]
   ret nz
   push hl
-  ;TODO: reduce blink counter and update blink bit
-  ;CODE...
+  ld a, c
+  xor E_FLAG_BLINK
+  ld c, a
+  ld [COMPONENT_PHYSICS + E_FLAGS], a
+  .apply_blink:
+    ld hl, COMPONENT_SPRITES + ENT_SPRITE
+    ld de, OAM_SLOT_SIZE
+    bit E_BLINK, c
+    jr nz, .blink_up
+    .blink_down:
+      dec [hl]
+      add hl, de
+      bit E_BIT_NO_GROUND, c
+      ret z
+      dec [hl]
+      add hl, de
+      bit E_BIT_RAYSNAKE, c
+      ret z
+      dec [hl]
+      ret
+    .blink_up:
+      inc [hl]
+      add hl, de
+      bit E_BIT_NO_GROUND, c
+      ret z
+      inc [hl]
+      add hl, de
+      bit E_BIT_RAYSNAKE, c
+      ret z
+      inc [hl]
+      ret
   pop hl
   ld [hl], E_BLINK_COUNTER_RELOAD
+  ret
+
+
+;TODO: a function that adds one or negative one (to apply blinking)
+; PARAM: 
+_apply_blink:
   ret
 
 
@@ -57,8 +92,6 @@ move_player_horizontally::
 animate_electrud_ground_move::
   ld hl, COMPONENT_PHYSICS + E_WALK_STEP_COUNTER
   dec [hl]
-  xor a
-  cp [hl]
   ret nz
   push hl
 
@@ -92,18 +125,9 @@ animate_electrud_ground_move::
 ; PARAM: c = [COMPONENT_PHYSICS + E_FLAGS], b = [COMPONENT_PHYSICS + E_PLAYER_INPUT]
 ; DESTROYS: hl
 calculate_electrud_jump::
+  ;TODO: this will calculate electrud jump by using physics (not the blinking)
   ;TODO: calculate jump by button press history (may add more components)
-  bit E_BIT_BLINK, c
-  jr nz, .blink_tile1
-  .blink_tile0:
-    ld a, E_TILE_JUMP
-    jr .apply_blink
-  .blink_tile1:
-    ld a, E_TILE_BLINKED_JUMP
-  .apply_blink:
-  ld a, [COMPONENT_SPRITES + OAM_SLOT_SIZE + ENT_SPRITE]
   ret
-
 
 move_raysnake_vertically::
   ret
@@ -113,7 +137,7 @@ move_raysnake_vertically::
 ; Local functions ;
 ;;;;;;;;;;;;;;;;;;;
 
-decrease_hl_counter:
+dec_hl_pointed_value:
   ;TODO: make if necessary but probably not really
   ret
 

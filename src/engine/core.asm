@@ -60,16 +60,12 @@ update_main_player::
   call lcdc_on
   pop bc
   .player_is_alive:
-  call iterate_player_blink
-  call apply_head_blink
+  call flip_player_blink
   call move_player_horizontally
   bit E_BIT_RAYSNAKE, c
   jr nz, .is_raysnake
   .is_electrud:
-    bit E_BIT_NO_GROUND, c
-    jr z, .electrud_is_grounded
     call calculate_electrud_jump
-    ret
     .electrud_is_grounded:
       bit INPUT_BIT_RIGHT, b
       call nz animate_electrud_ground_move
