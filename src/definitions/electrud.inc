@@ -25,21 +25,21 @@ def RSNK_TILE_BODY                 rb 1
 def RSNK_TILE_BLINKED_BODY         rb 1
 def RSNK_TILE_DIAG_BODY            rb 1
 def RSNK_TILE_DIAG_BLINKED_BODY    rb 1
-def E_PROJECTILE                   rb 1
-def E_BLINKED_PROJECTILE           rb 1
-def E_EXPLOSION1                   rb 1
-def E_EXPLOSION2                   rb 1
-def E_EXPLOSION3                   rb 1
-def E_EXPLOSION4                   rb 1
-def RSNK_DASH1                     rb 1
-def RSNK_DASH2                     rb 1
+def E_TILE_PROJECTILE              rb 1
+def E_TILE_BLINKED_PROJECTILE      rb 1
+def E_TILE_EXPLOSION1              rb 1
+def E_TILE_EXPLOSION2              rb 1
+def E_TILE_EXPLOSION3              rb 1
+def E_TILE_EXPLOSION4              rb 1
+def RSNK_TILE_DASH1                rb 1
+def RSNK_TILE_DASH2                rb 1
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Electrud physics components ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; ALL byte attributes
+; Electrud physics component
 rsreset
 def E_V                     rb 1
 def E_V_COUNTER             rb 1
@@ -49,19 +49,20 @@ def E_BLINK_COUNTER         rb 1
 def E_PLAYER_INPUT          rb 1
 def E_WALK_STEP_COUNTER     rb 1
 
-; E_FLAGS bits
+; E_FLAGS bit values
 def E_BIT_ALIVE 		  equ 7
 def E_BIT_RAYSNAKE 		equ 6
-def E_BIT_JMP			    equ 5
-def E_BIT_BLINK       equ 1
+def E_BIT_NO_GROUND		equ 5
+def E_BIT_WALK_STEP1  equ 4
+def E_BIT_WALK_STEP2  equ 3
+def E_BIT_BLINK       equ 2
 
 def E_FLAG_ALIVE      equ %10000000
 def E_FLAG_RAYSNAKE   equ %01000000
-def E_FLAG_JMP        equ %00100000
-def E_FLAG_WALK       equ %00010000
-def E_FLAG_MV_RIGHT   equ %00001000
-def E_FLAG_MV_LEFT    equ %00000100
-def E_FLAG_BLINK      equ %00000010
+def E_FLAG_NO_GROUND  equ %00100000
+def E_FLAG_STEP1      equ %00010000
+def E_FLAG_STEP2      equ %00001000
+def E_FLAG_BLINK      equ %00000100
 
 def E_TRANSFORM_COUNTER_RELOAD equ 90
 def E_BLINK_COUNTER_RELOAD equ 3

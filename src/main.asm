@@ -24,7 +24,7 @@ main::
    call lcdc_on
 
    .mainloop:
-      call update_electrud
+      call update_main_player
       call update_entities
       call update_map_scroll
       call render

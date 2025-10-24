@@ -46,15 +46,40 @@ load_engine::
   ret
 
 
-update_electrud::
-  ld hl, _WRAM + $100 + E_FLAGS
-  bit E_BIT_RAYSNAKE, [hl]
-  jr nz, .is_raysnake:
-  ;TODO: electrud code
-  ret
+update_main_player::
+  ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+  ld b, a
+  ld a, [COMPONENT_PHYSICS + E_FLAGS]
+  ld c, a
+  bit E_BIT_ALIVE, c
+  jr nz, .player_is_alive
+  push bc
+  call wait_vblank_start
+  call lcdc_off
+  call load_engine
+  call lcdc_on
+  pop bc
+  .player_is_alive:
+  call iterate_player_blink
+  call apply_head_blink
+  call move_player_horizontally
+  bit E_BIT_RAYSNAKE, c
+  jr nz, .is_raysnake
+  .is_electrud:
+    bit E_BIT_NO_GROUND, c
+    jr z, .electrud_is_grounded
+    call calculate_electrud_jump
+    ret
+    .electrud_is_grounded:
+      bit INPUT_BIT_RIGHT, b
+      call nz animate_electrud_ground_move
+      bit INPUT_BIT_LEFT, b
+      call nz animate_electrud_ground_move
+      ret
   .is_raysnake:
-  ;TODO: raysnake plays with other rules
-  ret
+    call move_player_horizontally
+    ; NO COUNTER
+    ret
 
 
 update_entities::

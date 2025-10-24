@@ -102,6 +102,32 @@ def INPUT_BIT_RIGHT equ 0
 ; GENERIC ENTITY DEFINITIONS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+rsreset _WRAM
+def COMPONENT_SPRITES   rb $100
+def COMPONENT_PHYSICS   rb $100
+
+def OAM_SLOT_SIZE equ 4
+; COMPONENT SPRITES
+rsreset 
+def ENT_Y 	    rb 1
+def ENT_X 	    rb 1
+def ENT_TILE 	  rb 1
+def ENT_FLAGS   rb 1
+
+def ENT_FLAGS_BIT_PRIORITY    equ 7
+def ENT_FLAGS_BIT_Y_FLIP      equ 6
+def ENT_FLAGS_BIT_X_FLIP      equ 5
+def ENT_FLAGS_BIT_PALETTE     equ 4
+def ENT_FLAGS_BIT_VRAM_BANK   equ 3
+
+; COMPONENT_PHYSICS
+rsreset
+def ENT_V 		            rb 1
+def ENT_V_COUNTER	        rb 1
+def ENT_FLAGS 	          rb 1
+
+def BLINK_COUNTER_RELOAD equ 3
+
 def ENT_SPEED_MAX     equ 0
 def ENT_SPEED_HIGH    equ 1
 def ENT_SPEED_MEDIUM  equ 2
@@ -109,21 +135,6 @@ def ENT_SPEED_MLOW    equ 3
 def ENT_SPEED_LOW     equ 4
 def ENT_SPEED_LOWER   equ 5
 def ENT_SPEED_SNAIL   equ 6
-
-def BLINK_COUNTER_RELOAD equ 3
-
-; Sprite byte offsets
-rsreset 
-def ENT_Y 	  rb 1
-def ENT_X 	  rb 1
-def ENT_TILE 	rb 1
-def ENT_FLAGS rb 1
-
-; Physics byte offsets
-RSRESET
-def ENT_V 		            rb 1
-def ENT_V_COUNTER	        rb 1
-def ENT_FLAGS 	          rb 1
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

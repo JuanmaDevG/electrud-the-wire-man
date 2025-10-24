@@ -13,11 +13,9 @@ wait_vblank_start::
 
 ;; DESTROYS: F, HL
 lcdc_off::
-	di
 	call wait_vblank_start
 	ld hl, rLCDC
 	res 7, [hl]
-	ei
 	ret
 
 ;; DESTROYS: F, HL
