@@ -1,5 +1,5 @@
-include "constants.inc"
-include "electrud.inc"
+include "definitions/constants.inc"
+include "definitions/electrud.inc"
 
 SECTION "Initialization data", ROM0
 electrud_init_sprites::

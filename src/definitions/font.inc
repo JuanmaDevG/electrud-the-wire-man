@@ -1,7 +1,7 @@
 if !def(FONT_INC)
   def FONT_INC equ 1
 
-include "constants.inc"
+include "definitions/constants.inc"
 
 def FONT_TILE_COUNT equ 66
 def FONT_CHAR_COUNT equ 67

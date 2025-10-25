@@ -102,7 +102,7 @@ def INPUT_BIT_RIGHT equ 0
 ; GENERIC ENTITY DEFINITIONS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-rsreset _WRAM
+rsset _WRAM
 def COMPONENT_SPRITES   rb $100
 def COMPONENT_PHYSICS   rb $100
 
@@ -124,7 +124,7 @@ def ENT_FLAGS_BIT_VRAM_BANK   equ 3
 rsreset
 def ENT_V 		            rb 1
 def ENT_V_COUNTER	        rb 1
-def ENT_FLAGS 	          rb 1
+def ENT_PHYS_FLAGS 	      rb 1
 
 def BLINK_COUNTER_RELOAD equ 3
 

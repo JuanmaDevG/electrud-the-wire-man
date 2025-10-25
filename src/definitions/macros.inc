@@ -11,6 +11,7 @@ macro Load_hlabc
   ld hl, \1
   ld a, \2
   ld bc, \3
+endm
 
 
 endc ; MACROS_INC

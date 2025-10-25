@@ -1,8 +1,8 @@
 if !def(ELECTRUD_INC)
-  def ELECTRUD_INC
+  def ELECTRUD_INC equ 1
 
-include "constants.inc"
-include "font.inc"
+include "definitions/constants.inc"
+include "definitions/font.inc"
 
 def ELECTRUD_TILE_COUNT equ 22
 def ELECTRUD_TILES_BYTE_SIZE equ (ELECTRUD_TILE_COUNT * TILE_SIZE)
@@ -11,12 +11,12 @@ def ELECTRUD_INIT_SPRITES_COMPONENT_SIZE equ 8
 def ELECTRUD_INIT_PHYSICS_COMPONENT_SIZE equ 5
 
 
-rsreset (1 + FONT_CHAR_COUNT) ;Jump the null tile
+rsset (1 + FONT_CHAR_COUNT) ;Jump the null tile
 def E_TILE_HEAD                    rb 1
 def E_TILE_BLINKED_HEAD            rb 1
 def E_TILE_BODY                    rb 1
 def E_TILE_BODY_WALK1              rb 1
-def E_TILE_BODY_WALK1              rb 1
+def E_TILE_BODY_WALK2              rb 1
 def E_TILE_JUMP                    rb 1
 def E_TILE_BLINKED_JUMP            rb 1
 def RSNK_TILE_HEAD                 rb 1

@@ -1,21 +1,21 @@
-include "constants.inc"
-include "font.inc"
-include "electrud.inc"
-include "macros.inc"
+include "definitions/constants.inc"
+include "definitions/font.inc"
+include "definitions/electrud.inc"
+include "definitions/macros.inc"
 
-def VRAM_LOAD_POINT = _VRAM + TILE_SIZE
+def FONT_LOAD_POINT = _VRAM + TILE_SIZE
+def TILES_LOAD_POINT = FONT_LOAD_POINT + (FONT_CHAR_COUNT + TILE_SIZE)
+def BRICKS_LOAD_POINT = TILES_LOAD_POINT ;TODO: read about compile-time variables
 
 SECTION "Game Engine", ROM0
 
 load_engine::
   .load_tiles:
-  Load_hldebc font_tiles, VRAM_LOAD_POINT, FONT_BYTE_SIZE
+  Load_hldebc font_tiles, FONT_LOAD_POINT, FONT_BYTE_SIZE
   call memcpy
-  VRAM_LOAD_POINT += (FONT_CHAR_COUNT * TILE_SIZE)
-  Load_hldebc electrud_tiles, VRAM_LOAD_POINT, ELECTRUD_TILES_BYTE_SIZE
+  Load_hldebc electrud_tiles, TILES_LOAD_POINT, ELECTRUD_TILES_BYTE_SIZE
   call memcpy
-  VRAM_LOAD_POINT += ELECTRUD_TILES_BYTE_SIZE
-  Load_hldebc brick_tiles, VRAM_LOAD_POINT, 1
+  Load_hldebc brick_tiles, BRICKS_LOAD_POINT, 1
   call memcpy
   .set_palettes:
   ld a, %11100100
@@ -68,9 +68,9 @@ update_main_player::
     call calculate_electrud_jump
     .electrud_is_grounded:
       bit INPUT_BIT_RIGHT, b
-      call nz animate_electrud_ground_move
+      call nz, animate_electrud_ground_move
       bit INPUT_BIT_LEFT, b
-      call nz animate_electrud_ground_move
+      call nz, animate_electrud_ground_move
       ret
   .is_raysnake:
     call move_player_horizontally
