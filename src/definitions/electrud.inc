@@ -8,7 +8,7 @@ def ELECTRUD_TILE_COUNT equ 22
 def ELECTRUD_TILES_BYTE_SIZE equ (ELECTRUD_TILE_COUNT * TILE_SIZE)
 
 def ELECTRUD_INIT_SPRITES_COMPONENT_SIZE equ 8
-def ELECTRUD_INIT_PHYSICS_COMPONENT_SIZE equ 5
+def ELECTRUD_INIT_PHYSICS_COMPONENT_SIZE equ 7
 
 
 rsset (1 + FONT_CHAR_COUNT) ;Jump the null tile
@@ -33,6 +33,7 @@ def E_TILE_EXPLOSION3              rb 1
 def E_TILE_EXPLOSION4              rb 1
 def RSNK_TILE_DASH1                rb 1
 def RSNK_TILE_DASH2                rb 1
+def TILE_BRICK                     rb 1 ;TODO: This is temporary
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -33,6 +33,7 @@ def rSTAT equ $ff41
 def rLY equ $ff44
 def rBGP equ $ff47
 def rOBP0 equ $ff48
+def rOBP1 equ $ff49
 def rWY equ $ff4a
 def rWX equ $ff4b
 def rIE equ $ffff

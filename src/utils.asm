@@ -1,4 +1,5 @@
 include "definitions/constants.inc"
+include "definitions/electrud.inc"
 
 SECTION "utils", ROM0
 ;; DESTROYS: AF, HL
@@ -25,19 +26,6 @@ lcdc_on::
     set 1, a 
     ld [rLCDC], a
   ret
-
-
-;; HL: source
-;; DE: destiny
-;;  B: bytes
-memcpy_256::
-	.loop:
-		ld a, [hl+]
-		ld [de], a
-		inc de
-		dec b 
-	jr nz, .loop
-	ret
 
 
 ;; HL: source
@@ -74,17 +62,6 @@ memset::
     jr .loop
 
 
-;; HL: destination
-;;  B: bytes
-;;  A: value to set
-memset_256::
-	.loop
-		ld [hl+], a
-		dec b 
-	jr nz, .loop
-	ret
-
-
 ;; DESTROYS: B, C, HL
 ;; RETURN: [E_PLAYER_INPUT] (joy_down, joy_up, joy_left, joy_right, start, select, B, A) (inside an electrud component)
 get_input::
@@ -111,89 +88,3 @@ get_input::
   ld a, SELECT_NONE
   ldh [c], a
   ret
-
-
-;; DESTROYS: A, B
-process_button:
-	ld b, a
-	xor a
-   	ld [A_button], a
-   	ld [B_button], a
-   	ld [SELECT_button], a
-   	ld [START_button], a
-
-   	ld a, b 
-	bit 0, a 
-	jr z, .A_button_pressed
-	bit 1, a
-	jr z, .B_button_pressed
-	bit 2, a
-	jr z, .SELECT_button_pressed
-	bit 3, a
-	jr z, .START_button_pressed
-
-	jp .end_processing
-
-	.A_button_pressed:
-		ld a, 1
-		ld [A_button], a 
-	jp .end_processing
-
-	.B_button_pressed:
-		ld a, 1
-		ld [B_button], a 
-	jp .end_processing
-
-	.SELECT_button_pressed:
-		ld a, 1
-		ld [SELECT_button], a
-	jp .end_processing
-
-	.START_button_pressed:
-		ld a, 1
-		ld [START_button], a
-
-	.end_processing:
-	ret
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; DESTROYS: HL, A
-;; 
-process_joypad:
-	;Primero reseteamos todos los bits a 0 para registrar de nuevo los movimientos bien
-	ld hl, electrud_physics + E_EL_FL
-	res E_BIT_MV_RIGHT, [hl]
-	res E_BIT_MV_LEFT, 	[hl]
-	res E_BIT_MV_UP, 	[hl]
-	res E_BIT_MV_DOWN, 	[hl]
-
-	bit 0, a 
-	jr z, .right_button_pressed
-	bit 1, a
-	jr z, .left_button_pressed
-	bit 2, a
-	jr z, .up_button_pressed
-	bit 3, a
-	jr z, .down_button_pressed
-
-	jp .end_processing
-
-	.right_button_pressed:
-		set E_BIT_MV_RIGHT, [hl]
-	jp .end_processing
-
-	.left_button_pressed:
-		set E_BIT_MV_LEFT, [hl]
-
-	jp .end_processing
-
-	.up_button_pressed:
-		set E_BIT_MV_UP, [hl]
-	jp .end_processing
-
-	.down_button_pressed:
-		set E_BIT_MV_DOWN, [hl]
-
-	.end_processing:
-	ret

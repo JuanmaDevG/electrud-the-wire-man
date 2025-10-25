@@ -15,9 +15,9 @@ flip_player_blink::
   ld c, a
   ld [COMPONENT_PHYSICS + E_FLAGS], a
   .apply_blink:
-    ld hl, COMPONENT_SPRITES + ENT_SPRITE
+    ld hl, COMPONENT_SPRITES + ENT_TILE
     ld de, OAM_SLOT_SIZE
-    bit E_BLINK, c
+    bit E_BIT_BLINK, c
     jr nz, .blink_up
     .blink_down:
       dec [hl]

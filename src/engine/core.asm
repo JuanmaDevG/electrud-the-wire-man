@@ -4,7 +4,7 @@ include "definitions/electrud.inc"
 include "definitions/macros.inc"
 
 def FONT_LOAD_POINT = _VRAM + TILE_SIZE
-def TILES_LOAD_POINT = FONT_LOAD_POINT + (FONT_CHAR_COUNT + TILE_SIZE)
+def TILES_LOAD_POINT = FONT_LOAD_POINT + (FONT_CHAR_COUNT * TILE_SIZE)
 def BRICKS_LOAD_POINT = TILES_LOAD_POINT ;TODO: read about compile-time variables
 
 SECTION "Game Engine", ROM0
@@ -20,10 +20,13 @@ load_engine::
   .set_palettes:
   ld a, %11100100
   ld hl, rBGP
-  ld a, [hl+]
+  ld a, [hl]
+  ld hl, rOBP0
+  ld a, [hl]
+  ld hl, rOBP1
   ld a, [hl]
   .initial_scene: ;TODO: later more complex level loads
-  Load_hlabc SCRN_GROUND_TILES, BRICK, SCRN_WIDTH_IN_TILES
+  Load_hlabc SCRN_GROUND_TILES, TILE_BRICK, SCRN_WIDTH_IN_TILES
   call memset
   .clear_sprites_mem:
   Load_hlabc _WRAM, 0, MEM_LINE_SIZE
@@ -39,8 +42,8 @@ load_engine::
   pop hl
   ld de, _OAM
   call memcpy
-  inc d
   ld hl, electrud_init_physics
+  ld de, COMPONENT_PHYSICS
   ld bc, ELECTRUD_INIT_PHYSICS_COMPONENT_SIZE
   call memcpy
   ret
@@ -66,7 +69,9 @@ update_main_player::
   jr nz, .is_raysnake
   .is_electrud:
     call calculate_electrud_jump
-    .electrud_is_grounded:
+    bit E_BIT_NO_GROUND, c
+    ret nz
+    .is_on_the_ground:
       bit INPUT_BIT_RIGHT, b
       call nz, animate_electrud_ground_move
       bit INPUT_BIT_LEFT, b
@@ -87,7 +92,11 @@ update_map_scroll::
 
 
 render::
+  ;TODO: this is temporary
+  ld hl, COMPONENT_SPRITES
+  ld de, _OAM
+  ld bc, 3 * OAM_SLOT_SIZE
+
   call wait_vblank_start
-  ;TODO: update the OAM
-  ;TODO: update the map scroll I guess
+  call memcpy
   ret
