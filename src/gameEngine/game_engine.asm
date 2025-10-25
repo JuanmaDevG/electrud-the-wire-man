@@ -59,6 +59,17 @@ tiles_init::
 		ld b, 12
 		call memcpy_256
 
+	.init_electrud_hitbox:
+		ld hl, electrud_hitbox  ; [y][h][x][w]
+		ld a, 104
+		ld [hl+], a  			; Y = 104
+		ld a, 16
+		ld [hl+], a  			; H = 16
+		ld a, 16
+		ld [hl+], a 			; X = 16
+		ld a, 8
+		ld [hl], a 				; W = 8
+
 
 	;; Y luego lo copiamos a la OAM
 	ld hl, WRAM_START

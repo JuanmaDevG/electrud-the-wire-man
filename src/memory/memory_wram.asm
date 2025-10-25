@@ -11,6 +11,11 @@ DS 37*4
 SECTION "Physics Component", WRAM0[$C100]
 electrud_physics: DS 12
 
+SECTION "Physics Hitbox", WRAM0[$C200]
+electrud_hitbox: DS 4
+raysnake_hitbox: DS 4
+;DS 4
+
 ;;;;;; OTRAS SECCIONES ;;;;;;;;;;;;;;,
 
 SECTION "Electrud state", WRAM0 

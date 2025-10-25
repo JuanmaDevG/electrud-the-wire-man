@@ -159,10 +159,24 @@ check_transformation::
 	ret
 
 
-
-
-
 move_electrud_raysnake::
+	; Lo primero es ver la colisión de suelo. Para ello:
+	; -Decrementammos [y] para que caiga
+	; -Comprobamos colisión
+	; IMPORTANTE:
+	; Antes de esto, hay que comprobar que sea electrud, porque raysnake vuela
+	.drop:
+		ld hl, electrud_hitbox		; [y]
+		ld a, [hl]
+		add PASO_MOVIMIENTO			; [y++]
+		ld [hl], a 
+
+		;; Una vez hemos cae, comprobamos colisión
+		ld hl, electrud_hitbox
+		call collide_down_with_tiles
+		call truly_move_electrud
+
+
 	.check_move_counter:
 		; PRIMERO COMPROBAMOS EL CONTADOR DE VELOCIDAD PARA VER SI TIENE QUE MOVERSE YA O NO
 		ld hl, electrud_physics + E_V_CONT
@@ -182,22 +196,19 @@ move_electrud_raysnake::
 		; ========== IMPORTANTE ===============
 		; ¿ROTAR TILES DERECHA?
 
-		;Movemos la cabeza
-		ld hl, electrud_sprite_head + E_X
-		ld a, [hl]
-		add PASO_MOVIMIENTO
-		ld [hl], a
 
-		;Movemos el cuerpo
-		ld hl, electrud_sprite_body + E_X
+		; Actualizamos la posíción en la hitbox
+		ld hl, electrud_hitbox + 2
 		ld a, [hl]
 		add PASO_MOVIMIENTO
 		ld [hl], a 
 
-		;Es raysnake? MOVER LA SEGUNDA COLA TAMBIÉN !!
-		ld hl, electrud_physics + E_EL_FL
-		bit E_BIT_RAYSNAKE, [hl]
-		jr nz, .move_raysnake_right
+		;; Comprobamos colisión
+		ld hl, electrud_hitbox
+		call collide_right_with_tiles
+
+		; Y por último, actualizamos el sprite desde la hitbox
+		call truly_move_electrud
 
 		jp .end_moving
 
@@ -211,23 +222,19 @@ move_electrud_raysnake::
 		; ========== IMPORTANTE ===============
 		; ¿ROTAR TILES IZQUIERDA?
 
-		;Movemos la cabeza
-		ld hl, electrud_sprite_head + E_X
-		ld a, [hl]
-		sub PASO_MOVIMIENTO
-		ld [hl], a
-
-		;Movemos el cuerpo
-		ld hl, electrud_sprite_body + E_X
+		; Actualizamos la posíción en la hitbox
+		ld hl, electrud_hitbox + 2
 		ld a, [hl]
 		sub PASO_MOVIMIENTO
 		ld [hl], a 
-
-		;Es raysnake? MOVER LA SEGUNDA COLA TAMBIÉN !!
-		ld hl, electrud_physics + E_EL_FL
-		bit E_BIT_RAYSNAKE, [hl]
-		jr nz, .move_raysnake_left
 		
+		; Comprobamos colisión
+		ld hl, electrud_hitbox
+		call collide_left_with_tiles
+
+		; Y por último, actualizamos el sprite desde la hitbox
+		call truly_move_electrud
+
 		jp .end_moving
 
 
@@ -257,7 +264,6 @@ move_electrud_raysnake::
 
 	.end_moving:
 		ld hl, electrud_physics + E_V_CONT
-		ld a, [hl]
 		ld a, SPEED_COUNTER 					; Reiniciamos el contador
 		ld [hl], a
 
@@ -265,5 +271,32 @@ move_electrud_raysnake::
 
 ret
 
+
+truly_move_electrud:
+	.load_hitbox_YX:
+		ld de, electrud_hitbox
+		ld a, [de]
+		ld b, a 	 						; B = Y de hitbox
+		
+		inc de 
+		inc de 	
+		ld a, [de]
+		ld c, a 							; C = X de hitbox
+
+	.update_electrud_head:
+		ld hl, electrud_sprite_head + E_Y 
+		ld [hl], b 							; Y = Y 
+		inc hl
+		ld [hl], c 
+
+	.update_electrud_body:
+		ld hl, electrud_sprite_body + E_Y 
+		ld a, b
+		add 8 								; Sumamos 8 porque el cuerpo está en Y - 8 
+		ld [hl], a
+
+		inc hl
+		ld [hl], c
+ret
 
 
