@@ -15,32 +15,45 @@ flip_player_blink::
   ld c, a
   ld [COMPONENT_PHYSICS + E_FLAGS], a
   .apply_blink:
-    ld hl, COMPONENT_SPRITES + ENT_TILE
-    ld de, OAM_SLOT_SIZE
+  ld hl, COMPONENT_SPRITES + ENT_TILE
+  ld de, OAM_SLOT_SIZE
+  bit E_BIT_RAYSNAKE, c
+  jr nz, .apply_to_raysnake
+  .apply_to_electrud:
     bit E_BIT_BLINK, c
-    jr nz, .blink_up
-    .blink_down:
-      dec [hl]
-      add hl, de
+    jr z, .e_blink_down
+    .e_blink_up:
+    ld [hl], E_TILE_BLINKED_HEAD
+    ld a, 1
+    jr .check_if_jumping
+    .e_blink_down:
+    ld [hl], E_TILE_HEAD
+    xor a
+    .check_if_jumping:
       bit E_BIT_NO_GROUND, c
-      ret z
-      dec [hl]
+      jr z, .clean_and_end
+      .blink_the_jump:
+      add E_TILE_JUMP
       add hl, de
-      bit E_BIT_RAYSNAKE, c
-      ret z
-      dec [hl]
-      ret
-    .blink_up:
-      inc [hl]
+      ld [hl], a
+      jr .clean_and_end
+  .apply_to_raysnake:
+    bit E_BIT_BLINK, c
+    jr nz, .rsnk_blink_up
+    .rsnk_blink_down:
+      ld [hl], RSNK_TILE_HEAD
       add hl, de
-      bit E_BIT_NO_GROUND, c
-      ret z
-      inc [hl]
+      ld [hl], RSNK_TILE_BODY
       add hl, de
-      bit E_BIT_RAYSNAKE, c
-      ret z
-      inc [hl]
-      ret
+      ld [hl], RSNK_TILE_BODY
+      jr .clean_and_end
+    .rsnk_blink_up:
+      ld [hl], RSNK_TILE_BLINKED_HEAD
+      add hl, de
+      ld [hl], RSNK_TILE_BLINKED_BODY
+      add hl, de
+      ld [hl], RSNK_TILE_BLINKED_BODY
+  .clean_and_end:
   pop hl
   ld [hl], E_BLINK_COUNTER_RELOAD
   ret

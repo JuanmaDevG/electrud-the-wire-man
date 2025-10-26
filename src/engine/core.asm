@@ -20,11 +20,9 @@ load_engine::
   .set_palettes:
   ld a, %11100100
   ld hl, rBGP
-  ld a, [hl]
-  ld hl, rOBP0
-  ld a, [hl]
-  ld hl, rOBP1
-  ld a, [hl]
+  ld [hl+], a
+  ld [hl+], a
+  ld [hl+], a
   .initial_scene: ;TODO: later more complex level loads
   Load_hlabc SCRN_GROUND_TILES, TILE_BRICK, SCRN_WIDTH_IN_TILES
   call memset
@@ -92,11 +90,11 @@ update_map_scroll::
 
 
 render::
-  ;TODO: this is temporary
+  call wait_vblank_start
+
+  ;TODO: this update type is temporary
   ld hl, COMPONENT_SPRITES
   ld de, _OAM
   ld bc, 3 * OAM_SLOT_SIZE
-
-  call wait_vblank_start
   call memcpy
   ret

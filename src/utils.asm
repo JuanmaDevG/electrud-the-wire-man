@@ -71,8 +71,8 @@ get_input::
   ldh a, [c]
   ldh a, [c]
   ldh a, [c]
-  and $0f
   cpl
+  and $0f
   ld b, a
   swap b
   ld a, SELECT_JOYPAD
@@ -83,7 +83,7 @@ get_input::
   cpl
   and $0f
   or b
-  ld hl, _WRAM + $0100 + E_PLAYER_INPUT
+  ld hl, COMPONENT_PHYSICS + E_PLAYER_INPUT
   ld [hl], a
   ld a, SELECT_NONE
   ldh [c], a
