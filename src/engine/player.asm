@@ -64,34 +64,52 @@ flip_player_blink::
 _apply_blink:
   ret
 
+; DESTROYS: hl, de, bc, af
+drop_player_until_floor::
+  ; ld de, dirección_de_velocidad_de_fisicas_electrud -> para mover DE píxeles
+  ld hl, electrud_hitbox    ; [y]
+  inc [hl]     ; [y++]
+  ;; Ahora ha bajado un píxel
+
+  ;; Una vez cae, comprobamos colisión
+  call collide_down_with_tiles
+  call truly_move_electrud
+ret
 
 ; PARAM: b = input bits
-; DESTROYS: hl, de
+; DESTROYS: hl, de, bc, af
 move_player_horizontally::
-  ld hl, COMPONENT_SPRITES + ENT_X
+  ld hl, electrud_hitbox + ENT_X_HITBOX
+
+  ;ld hl, COMPONENT_SPRITES + ENT_X
   ld de, OAM_SLOT_SIZE
   .move_right:
     bit INPUT_BIT_RIGHT, b
     jr z, .move_left
+    
     inc [hl]
-    add hl, de
-    inc [hl]
-    add hl, de
-    inc [hl]
+    ;; Una vez se mueve a la derecha, comprobamos colisión y corregimos si es necesario
+    ld hl, electrud_hitbox
+    call collide_right_with_tiles
+    call truly_move_electrud
+
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     res ENT_FLAGS_BIT_X_FLIP, [hl]
     add hl, de
     res ENT_FLAGS_BIT_X_FLIP, [hl]
     add hl, de
     res ENT_FLAGS_BIT_X_FLIP, [hl]
+
   .move_left:
     bit INPUT_BIT_LEFT, b
     ret z
+
     dec [hl]
-    add hl, de
-    dec [hl]
-    add hl, de
-    dec [hl]
+    ;; Una vez se mueve a la izquierda, comprobamos colisión y corregimos si es necesario
+    ld hl, electrud_hitbox
+    call collide_left_with_tiles
+    call truly_move_electrud
+
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     set ENT_FLAGS_BIT_X_FLIP, [hl]
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
@@ -99,6 +117,31 @@ move_player_horizontally::
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     ret
 
+truly_move_electrud:
+  .load_hitbox_YX:
+    ld de, electrud_hitbox + ENT_Y_HITBOX
+    ld a, [de]
+    ld b, a               ; B = Y de hitbox
+    
+    ld de, electrud_hitbox + ENT_X_HITBOX
+    ld a, [de]
+    ld c, a               ; C = X de hitbox
+
+  .update_electrud_head:
+    ld hl, electrud_sprite_head + ENT_Y 
+    ld [hl], b              ; Y = Y 
+    inc hl                  ; ENT_X
+    ld [hl], c 
+
+  .update_electrud_body:
+    ld hl, electrud_sprite_body + ENT_Y 
+    ld a, b
+    add 8                 ; Sumamos 8 porque el cuerpo está en Y + 8 (estamos cargando la Y de la hitbox que es de la cabeza)
+    ld [hl], a
+
+    inc hl                ; ENT_X
+    ld [hl], c
+ret
 
 ; PARAM: c = [COMPONENT_PHYSICS + E_FLAGS]
 ; DESTROYS: hl

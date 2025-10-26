@@ -11,6 +11,12 @@ general_entities_mem: DS ENTITY_SLOT_SIZE * 37
 SECTION "Physics Component", WRAM0[$C100]
 electrud_physics: DS 12
 
+SECTION "Physical Hitbox", WRAM0[$C200]
+electrud_hitbox: 		DS 4
+raysnake_hitbox: 		DS 4
+empty_electrud_hitbox:	DS 4
+
+
 ;;;;;; OTRAS SECCIONES ;;;;;;;;;;;;;;,
 
 ; TODO: esto debería estar en una posición específica de la wram (para el futuro)

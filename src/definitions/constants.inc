@@ -106,6 +106,7 @@ def INPUT_BIT_RIGHT equ 0
 rsset _WRAM
 def COMPONENT_SPRITES   rb $100
 def COMPONENT_PHYSICS   rb $100
+def COMPONENT_HITBOX    rb $100
 
 def OAM_SLOT_SIZE equ 4
 ; COMPONENT SPRITES
@@ -136,6 +137,13 @@ def ENT_SPEED_MLOW    equ 3
 def ENT_SPEED_LOW     equ 4
 def ENT_SPEED_LOWER   equ 5
 def ENT_SPEED_SNAIL   equ 6
+
+; COMPONENT HITBOX
+rsreset 
+def ENT_Y_HITBOX rb 1
+def ENT_H_HITBOX rb 1
+def ENT_X_HITBOX rb 1
+def ENT_W_HITBOX rb 1
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

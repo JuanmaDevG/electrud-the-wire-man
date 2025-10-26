@@ -88,3 +88,107 @@ get_input::
   ld a, SELECT_NONE
   ldh [c], a
   ret
+
+
+
+;;DESTROYS: 
+;;      A
+;;INPUT:
+;;      A: Sprite X-coordinate value
+;; OUTPUT:
+;;      A: Associated VRAM Tilemap TX-coordinate value
+convert_x_to_tx:
+  ; Tenemos la coordenada en píxeles, por lo tanto primero tenemos que restarle 8
+  sub 8
+  ; Y ahora, para pasarlo a coordenada de tilemap, se divide entre 8
+  srl a
+  srl a
+  srl a
+ret
+
+
+;;DESTROYS: 
+;;      A
+;; INPUT:
+;;      A: Sprite Y-coordinate value
+;; 
+;; OUTPUT:
+;;      A: Associated VRAM Tilemap TY-coordinate value
+convert_y_to_ty:
+    ; Tenemos la coordenada en píxeles, por lo tanto primero tenemos que restarle 8
+  sub 16
+  ; Y ahora, para pasarlo a coordenada de tilemap, se divide entre 8
+  srl a
+  srl a
+  srl a
+ret
+
+
+;;DESTROYS: 
+;;      A, HL, DE
+;; INPUT:
+;;      B: TY coordinate 
+;;      C: TX coordinate
+;;  OUTPUT:
+;;     HL: Address where the (TX, TY) tile is stored
+;:
+calculate_address_from_tx_and_ty:
+  ;9800 + TY*32 + TX
+  ld h, $00
+  or a          ; esto lo hago para desactivar el flag carry
+  ld l, b         ; movemos TY a L para hacer la multiplicación en HL
+  ld de, $9800
+
+  ;Multiplicamos TY*32
+  ;*2
+  rl l 
+  rl h
+  ;*4
+  rl l 
+  rl h
+  ;*8
+  rl l 
+  rl h    
+  ;*16
+  rl l 
+  rl h  
+  ;*32
+  rl l 
+  rl h 
+
+  ;Hacemos la suma (primero TY*32 + TX)
+  ; como tenemos TY*32 en HL y TX en c
+  ; sumamos L+A, lo guardamos en L
+  ld b, $00
+  add hl, bc      ;; Hacemos la suma TY*32 + TX
+  add hl, de      ;; Y ahora sumamos $9800 a esto
+
+ret
+
+;;DESTROYS: 
+;;      A
+;; INPUT:
+;;      A: Sprite Y-coordinate value
+;; 
+;; OUTPUT:
+;;      A: Associated Y pixel of the sprite
+convert_ty_to_y:
+  add a
+  add a
+  add a
+  add 16
+ret
+
+;;DESTROYS: 
+;;      A
+;; INPUT:
+;;      A: Sprite Y-coordinate value
+;; 
+;; OUTPUT:
+;;      A: Associated Y pixel of the sprite
+convert_tx_to_x:
+  add a
+  add a
+  add a
+  add 8
+ret
