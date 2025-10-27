@@ -128,8 +128,15 @@ def ENT_V 		            rb 1
 def ENT_V_COUNTER	        rb 1
 def ENT_PHYS_FLAGS 	      rb 1
 
+; ENT_PHYS_FLAGS bit values
+def ENT_BIT_USED            equ 7
+def ENT_BIT_IS_PROJECTILE   equ 6
+def ENT_BIT_NO_MOVE         equ 5
+def ENT_BIT_GOES_RIGHT      equ 4
+
 def BLINK_COUNTER_RELOAD equ 3
 
+; ENT_V and ENT_V_COUNTER
 def ENT_SPEED_MAX     equ 0
 def ENT_SPEED_HIGH    equ 1
 def ENT_SPEED_MEDIUM  equ 2
