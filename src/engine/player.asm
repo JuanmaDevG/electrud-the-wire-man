@@ -73,6 +73,18 @@ drop_player_until_floor::
 
   ;; Una vez cae, comprobamos colisión
   call collide_down_with_tiles
+  jr c, .in_the_floor
+
+  .in_the_air:
+    ld a, [COMPONENT_PHYSICS + E_FLAGS]
+    set E_BIT_NO_GROUND, [hl]
+    jr .finish_floor_collide
+
+  .in_the_floor:
+    ld hl, COMPONENT_PHYSICS + E_FLAGS
+    res E_BIT_NO_GROUND, [hl]
+
+  .finish_floor_collide:
   call truly_move_electrud
 ret
 
@@ -87,29 +99,35 @@ move_player_horizontally::
     bit INPUT_BIT_RIGHT, b
     jr z, .move_left
     
+    push de
+
     inc [hl]
     ;; Una vez se mueve a la derecha, comprobamos colisión y corregimos si es necesario
     ld hl, electrud_hitbox
     call collide_right_with_tiles
     call truly_move_electrud
 
+    pop de 
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     res ENT_FLAGS_BIT_X_FLIP, [hl]
     add hl, de
     res ENT_FLAGS_BIT_X_FLIP, [hl]
     add hl, de
     res ENT_FLAGS_BIT_X_FLIP, [hl]
+  ret
 
   .move_left:
     bit INPUT_BIT_LEFT, b
     ret z
 
+    push de 
     dec [hl]
     ;; Una vez se mueve a la izquierda, comprobamos colisión y corregimos si es necesario
     ld hl, electrud_hitbox
     call collide_left_with_tiles
     call truly_move_electrud
 
+    pop de 
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     set ENT_FLAGS_BIT_X_FLIP, [hl]
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
@@ -136,7 +154,7 @@ truly_move_electrud:
   .update_electrud_body:
     ld hl, electrud_sprite_body + ENT_Y 
     ld a, b
-    add 8                 ; Sumamos 8 porque el cuerpo está en Y + 8 (estamos cargando la Y de la hitbox que es de la cabeza)
+    add 8                 ; Sumamos 8 porque el cuerpo está en Y + 8 (estamos cargando la Y de la hitbox que es de la cabeza, ahora queremos actualizar el cuerpo)
     ld [hl], a
 
     inc hl                ; ENT_X

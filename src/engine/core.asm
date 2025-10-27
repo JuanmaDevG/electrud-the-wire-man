@@ -68,13 +68,18 @@ update_main_player::
   pop bc
   .player_is_alive:
   call flip_player_blink
+  ;push bc 
+  ;call drop_player_until_floor
+  ;pop bc
   push bc 
-  call drop_player_until_floor
-  pop bc
   call move_player_horizontally
+  pop bc
   bit E_BIT_RAYSNAKE, c
   jr nz, .is_raysnake
   .is_electrud:
+    push bc
+    call drop_player_until_floor
+    pop bc 
     call calculate_electrud_jump
     bit E_BIT_NO_GROUND, c
     ret nz
@@ -370,7 +375,7 @@ collide_down_with_tiles::
     dec hl 
     ld [hl], a  ; guardamos en la hitbox en [y] el valor del pixel al borde de la colisión
 
-    ; scf -> por si quisiéramos hacer algo más si colisiona
+    scf 
 
 ret
 
