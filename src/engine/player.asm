@@ -192,7 +192,7 @@ animate_electrud_ground_move::
   pop hl
   ld [hl], E_WALK_STEP_COUNTER_RELOAD
   ld a, c
-  ld a, [COMPONENT_PHYSICS + E_FLAGS]
+  ld [COMPONENT_PHYSICS + E_FLAGS], a
   ret
 
 
