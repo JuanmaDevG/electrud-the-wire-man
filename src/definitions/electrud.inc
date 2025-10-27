@@ -41,6 +41,17 @@ def TILE_BRICK                     rb 1 ;TODO: This is temporary
 ; Electrud physics components ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; COMPONENT_SPRITES for electrud
+rsreset
+def E_SPRITE_HEAD           rb 4
+def E_SPRITE_BODY           rb 4
+def E_SPRITE_UNUSED         rb 4
+
+rsreset
+def RSNK_SPRITE_HEAD        rb 4
+def RSNK_SPRITE_TAIL1       rb 4
+def RSNK_SPRITE_TAIL2       rb 4
+
 ; COMPONENT_PHYSICS bytes
 rsreset
 def E_V                     rb 1
@@ -50,6 +61,7 @@ def E_TRANSFORM_COUNTER     rb 1
 def E_BLINK_COUNTER         rb 1
 def E_PLAYER_INPUT          rb 1
 def E_WALK_STEP_COUNTER     rb 1
+def E_NEW_PROJECTILE        rb 1
 
 ; E_FLAGS bit values
 def E_BIT_ALIVE 		  equ 7

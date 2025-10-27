@@ -3,17 +3,16 @@ include "definitions/electrud.inc"
 
 
 SECTION "Player functions", ROM0
-; PARAM: b = E_PLAYER_INPUT, c = E_FLAGS
-; DESTROY: hl
+; DESTROY: hl, de, bc, af
 flip_player_blink::
   ld hl, COMPONENT_PHYSICS + E_BLINK_COUNTER
   dec [hl]
   ret nz
   push hl
-  ld a, c
+  ld a, [COMPONENT_PHYSICS + E_FLAGS]
   xor E_FLAG_BLINK
-  ld c, a
   ld [COMPONENT_PHYSICS + E_FLAGS], a
+  ld c, a
   .apply_blink:
   ld hl, COMPONENT_SPRITES + ENT_TILE
   ld de, OAM_SLOT_SIZE
@@ -76,15 +75,12 @@ drop_player_until_floor::
   call truly_move_electrud
 ret
 
-; PARAM: b = input bits
 ; DESTROYS: hl, de, bc, af
 move_player_horizontally::
   ld hl, electrud_hitbox + ENT_X_HITBOX
-
-  ;ld hl, COMPONENT_SPRITES + ENT_X
-  ld de, OAM_SLOT_SIZE
   .move_right:
-    bit INPUT_BIT_RIGHT, b
+    ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+    bit INPUT_BIT_RIGHT, a
     jr z, .move_left
     
     inc [hl]
@@ -94,6 +90,7 @@ move_player_horizontally::
     call truly_move_electrud
 
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
+    ld de, OAM_SLOT_SIZE
     res ENT_FLAGS_BIT_X_FLIP, [hl]
     add hl, de
     res ENT_FLAGS_BIT_X_FLIP, [hl]
@@ -101,7 +98,8 @@ move_player_horizontally::
     res ENT_FLAGS_BIT_X_FLIP, [hl]
 
   .move_left:
-    bit INPUT_BIT_LEFT, b
+    ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+    bit INPUT_BIT_LEFT, a
     ret z
 
     dec [hl]
@@ -115,6 +113,7 @@ move_player_horizontally::
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     set ENT_FLAGS_BIT_X_FLIP, [hl]
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
+    ;TODO: for both add extra behaviour if raysnake (reverse tile placement)
     ret
 
 truly_move_electrud:
@@ -143,9 +142,66 @@ truly_move_electrud:
     ld [hl], c
 ret
 
-; PARAM: c = [COMPONENT_PHYSICS + E_FLAGS]
-; DESTROYS: hl
+; DESTROY: hl, de, bc, af
+e_action_buttons::
+  ld hl, COMPONENT_PHYSICS + E_TRANSFORM_COUNTER
+  ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+  bit INPUT_BIT_B, a
+  jr z, .throw_projectile
+  dec [hl]
+  jp z, _transform_elec_2_rsnk
+  .prepare_projectile:
+    jr .check_jump
+  .throw_projectile:
+  .check_jump:
+    ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+  ;TODO: apply the collission system to vertical orientation
+  ret
+
+
+_transform_elec_2_rsnk::
+  ld hl, COMPONENT_SPRITES
+  ld a, [hl]
+  ld l, ENT_Y + OAM_SLOT_SIZE
+  ld [hl], a
+  ld l, ENT_Y + (2 * OAM_SLOT_SIZE)
+  ld [hl], a
+  ld l, ENT_X
+  ld a, [hl]
+  sub TILE_PX_WIDTH
+  ld l, ENT_X + OAM_SLOT_SIZE
+  ld [hl], a
+  sub TILE_PX_WIDTH
+  ld l, ENT_X + (2 * OAM_SLOT_SIZE)
+  ld [hl], a
+  ld l, ENT_TILE
+  ld [hl], RSNK_TILE_HEAD
+  ld l, ENT_TILE + OAM_SLOT_SIZE
+  ld [hl], RSNK_TILE_BODY
+  ld l, ENT_TILE + (2 * OAM_SLOT_SIZE)
+  ld [hl], RSNK_TILE_BODY
+  ld l, ENT_FLAGS
+  xor a
+  ld [hl], a
+  ld l, ENT_FLAGS + OAM_SLOT_SIZE
+  ld [hl], a
+  ld l, ENT_FLAGS + (2 * OAM_SLOT_SIZE)
+  ld hl, COMPONENT_PHYSICS + E_FLAGS
+  ld [hl], %11100000 ; ALIVE, RAYSNAKE, NO_GROUND, !WALK_STEP1, !WALK_STEP2, !BLINK
+  inc l
+  ld [hl], E_TRANSFORM_COUNTER_RELOAD
+  inc l
+  ld [hl], E_BLINK_COUNTER_RELOAD
+  ret
+
+rsnk_action_buttons::
+  ret
+
+
+; DESTROYS: hl, de, bc, af
 animate_electrud_ground_move::
+  ld a, [COMPONENT_PHYSICS + E_FLAGS]
+  ld c, a
   ld hl, COMPONENT_PHYSICS + E_WALK_STEP_COUNTER
   dec [hl]
   ret nz
@@ -184,6 +240,11 @@ calculate_electrud_jump::
   ;TODO: this will calculate electrud jump by using physics (not the blinking)
   ;TODO: calculate jump by button press history (may add more components)
   ret
+
+
+animate_ground_movement::
+  ret
+
 
 move_raysnake_vertically::
   ret

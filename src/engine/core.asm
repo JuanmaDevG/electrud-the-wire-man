@@ -54,43 +54,43 @@ load_engine::
 
 
 update_main_player::
-  ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
-  ld b, a
   ld a, [COMPONENT_PHYSICS + E_FLAGS]
-  ld c, a
-  bit E_BIT_ALIVE, c
+  bit E_BIT_ALIVE, a
   jr nz, .player_is_alive
-  push bc
+  .revive_player:
   call wait_vblank_start
   call lcdc_off
   call load_engine
   call lcdc_on
-  pop bc
   .player_is_alive:
   call flip_player_blink
-  push bc 
-  call drop_player_until_floor
-  pop bc
   call move_player_horizontally
-  bit E_BIT_RAYSNAKE, c
+  ld a, [COMPONENT_PHYSICS + E_FLAGS]
+  bit E_BIT_RAYSNAKE, a
   jr nz, .is_raysnake
   .is_electrud:
-    call calculate_electrud_jump
-    bit E_BIT_NO_GROUND, c
+    call drop_player_until_floor
+    call e_action_buttons
+    ld a, [COMPONENT_PHYSICS + E_FLAGS]
+    bit E_BIT_NO_GROUND, a
     ret nz
     .is_on_the_ground:
+      call animate_ground_movement
+      ;TODO: correct right/left just to change WRAM sprite bit (by collecting input)
       bit INPUT_BIT_RIGHT, b
       call nz, animate_electrud_ground_move
       bit INPUT_BIT_LEFT, b
       call nz, animate_electrud_ground_move
       ret
   .is_raysnake:
-    call move_player_horizontally
+    call rsnk_action_buttons
+    call move_raysnake_vertically
     ; NO COUNTER
     ret
 
 
 update_entities::
+  ;TODO: animate projectiles
   ret
 
 
