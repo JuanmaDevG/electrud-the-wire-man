@@ -4,7 +4,7 @@ if !def(ELECTRUD_INC)
 include "definitions/constants.inc"
 include "definitions/font.inc"
 
-def ELECTRUD_TILE_COUNT equ 22
+def ELECTRUD_TILE_COUNT equ 21
 def ELECTRUD_TILES_BYTE_SIZE equ (ELECTRUD_TILE_COUNT * TILE_SIZE)
 
 def ELECTRUD_INIT_SPRITES_COMPONENT_SIZE equ 8

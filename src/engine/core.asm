@@ -1,11 +1,13 @@
 include "definitions/constants.inc"
 include "definitions/font.inc"
 include "definitions/electrud.inc"
+include "definitions/enemies.inc"
 include "definitions/macros.inc"
 
 def FONT_LOAD_POINT = _VRAM + TILE_SIZE
 def TILES_LOAD_POINT = FONT_LOAD_POINT + (FONT_CHAR_COUNT * TILE_SIZE)
-def BRICKS_LOAD_POINT = TILES_LOAD_POINT ;TODO: read about compile-time variables
+def OTHER_TILES_LOAD_POINT = TILES_LOAD_POINT + (ELECTRUD_TILE_COUNT * TILE_SIZE);TODO: read about compile-time variables
+def ENEMY1_TILES_LOAD_POINT = OTHER_TILES_LOAD_POINT + (GENERAL_TILES_TILE_COUNT * TILE_SIZE)
 
 SECTION "Game Engine", ROM0
 
@@ -15,7 +17,9 @@ load_engine::
   call memcpy
   Load_hldebc electrud_tiles, TILES_LOAD_POINT, ELECTRUD_TILES_BYTE_SIZE
   call memcpy
-  Load_hldebc brick_tiles, BRICKS_LOAD_POINT, 1
+  Load_hldebc general_tiles, OTHER_TILES_LOAD_POINT, GENERAL_TILES_BYTE_SIZE
+  call memcpy
+  Load_hldebc enemy1_tiles, ENEMY1_TILES_LOAD_POINT, ENEMY1_TILES_BYTE_SIZE
   call memcpy
   .set_palettes:
   ld a, %11100100
