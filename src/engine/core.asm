@@ -23,9 +23,19 @@ load_engine::
   ld [hl+], a
   ld [hl+], a
   ld [hl+], a
-  .initial_scene: ;TODO: later more complex level loads
+  .clear_screen: call clear_screen
+  .initial_scene:
   Load_hlabc SCRN_GROUND_TILES, TILE_BRICK, SCRN_WIDTH_IN_TILES
   call memset
+    .side_walls:
+      ld hl, _SCRN0
+      ld b, SCRN_HEIGHT_IN_TILES -1
+      ld c, TILE_BRICK
+      ld a, b
+      call vertical_screen_fill
+      ld hl, _SCRN0 + SCRN_WIDTH_IN_TILES -1
+      ld b, a
+      call vertical_screen_fill
   .clear_sprites_mem:
   Load_hlabc _WRAM, 0, MEM_LINE_SIZE
   call memset
@@ -60,6 +70,7 @@ update_main_player::
   .revive_player:
   call wait_vblank_start
   call lcdc_off
+  call show_gameover_screen
   call load_engine
   call lcdc_on
   .player_is_alive:
@@ -84,6 +95,46 @@ update_main_player::
     call move_raysnake_vertically
     ; NO COUNTER
     ret
+
+
+def GAMEOVER_TXT_LEN equ 9
+def RESTART_TXT_LEN equ 15
+def CENTER_ROW_OFFSET equ (SCRN_LINE_JUMP * (SCRN_HEIGHT_IN_TILES / 2))
+def CENTER_COL_OFFSET equ (SCRN_WIDTH_IN_TILES / 2)
+gameover_text: db "Game Over"
+restart_text: db "Press A to play"
+show_gameover_screen::
+  ld hl, gameover_text
+  ld de, _SCRN0 + CENTER_ROW_OFFSET - SCRN_LINE_JUMP + CENTER_COL_OFFSET - (GAMEOVER_TXT_LEN / 2)
+  ld bc, GAMEOVER_TXT_LEN
+  call memcpy
+  ld hl, restart_text
+  ld de, _SCRN0 + CENTER_ROW_OFFSET + SCRN_LINE_JUMP + CENTER_COL_OFFSET - (RESTART_TXT_LEN / 2)
+  ld bc, RESTART_TXT_LEN
+  call memcpy
+  .clean_oam:
+  Load_hlabc _OAM, 0, OAM_BYTESIZE
+  call memset
+  call lcdc_on
+  .wait_input_a:
+    call get_input
+    ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+    bit INPUT_BIT_A, a
+    jr z, .wait_input_a
+  call wait_vblank_start
+  call lcdc_off
+  ret
+
+
+; INPUT: no
+; DESTROY: hl, bc, a
+; WARNIGN: ensure lcdc is off
+clear_screen::
+  ld hl, _SCRN0
+  ld bc, _SCRN1 - _SCRN0
+  xor a
+  call memset
+  ret
 
 
 update_entities::

@@ -90,6 +90,17 @@ get_input::
   ret
 
 
+; INPUT: hl = screen addr, b = num of tiles, c = TILE
+; DESTROYS: hl, b, de
+vertical_screen_fill::
+  ld de, SCRN_LINE_JUMP
+  .loop:
+    ld [hl], c
+    add hl, de
+    dec b
+    jr nz, .loop
+  ret
+
 
 ;;DESTROYS: 
 ;;      A
