@@ -54,6 +54,30 @@ load_engine::
   ld de, COMPONENT_HITBOX
   ld bc, ELECTRUD_INIT_HITBOX_COMPONENT_SIZE
   call memcpy
+
+  ;JUST TO PROVE WITH ONE BALL, LATER WILL DELETE THIS
+  .load_ball:
+    ld a, 0
+    ld [general_entities_mem + ENT_Y], a
+    ld a, 80
+    ld [general_entities_mem + ENT_X], a
+    ld a, $5E
+    ld [general_entities_mem + ENT_TILE], a 
+
+
+    ld a, 0
+    ld [ball_hitbox + ENT_Y_HITBOX], a
+    ld a, 8
+    ld [ball_hitbox + ENT_H_HITBOX], a
+    ld a, 80
+    ld [ball_hitbox + ENT_X_HITBOX], a
+    ld a, 8
+    ld [ball_hitbox + ENT_W_HITBOX], a 
+
+    ld   a, 2                 ; vy = 2 px/frame
+    ld   [ball_physics+0], a
+    ld   a, 1                 ; alive_flag = 1
+    ld   [ball_physics+1], a
   ret
 
 
@@ -77,6 +101,29 @@ update_main_player::
 
 update_entities::
   ;TODO: animate projectiles
+
+  ;first check counter to spawn another ball or not
+  ;second, check life and delete if it touched the floor
+  ;third, update position
+  ;fourth, check collision and mark his death
+  ;check player collision and mark player death
+  ;actualizamos el sprite
+  ; TODO ESTO ESTÁ EN update_ball 
+  
+  ld hl, general_entities_mem
+  push hl
+  call update_ball 
+  pop hl
+  ;ld hl, general_entities_mem
+  ;ld b, NUM_BALLS           
+  ;.loop_update_balls:
+  ;  push hl
+  ;  call update_ball
+  ;  pop hl
+  ;  ld de, SIZE_OF_ENTITY
+  ;  add hl, de 
+  ;  dec b
+  ;  jr nz, .loop_update_balls
   ret
 
 
@@ -362,6 +409,86 @@ collide_down_with_tiles::
 ret
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Checks if two integral intervals overlap in one dimension
+;; It receives the addresses of 2 intervals in memory 
+;; in HL and DE:
+;;
+;;   Address  |DE| +1|       |BC| +1|
+;;   Values   [p1][w1] ......[p2][w2] 
+;;
+;; Returns Carry Flag (C=0, NC) when NOT-Colliding,
+;;                and (C=1,  C) when overlapping.
+;;
+;; INPUT:   
+;;    DE: Address of Interval 1 (p1, w1)
+;;    BC: Address of Interval 2 (p2, w2)
+;;OUTPUT:  
+;;    Carry: { NC: No overlap }, { C: Overlap } 
+are_intervals_overlapping::
+  .whos_greater:
+    ld h, b 
+    ld l, c 
+    ld a, [de]
+    cp [hl]
+    jr c, .BC_is_greater
+
+  .DE_is_greater:
+    ld c, a       ; p1 
+    ld a, [hl+]   ; p2
+    add [hl]      ; + w2
+    ld b, a
+    ld a, c
+    cp b          ; p1 - (p2 + w2) -> si hay carry -> solapa
+    jp .end_check
+
+  .BC_is_greater:
+    ld c, a
+    inc de
+    ld a, [de]
+    add c
+    ld c, a
+    ld a, [hl]
+    cp c 
+
+  .end_check
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Checks if two Axis Aligned Bounding Boxes (AABB) are
+;; colliding. 
+;;  1. First, checks if they collide on the Y axis
+;;  2. Then checks the X axis, only if Y intervals overlap
+;;
+;; Receives in DE and HL the addresses of two AABBs:
+;;              --AABB 1--           --AABB 2--
+;;  Address  |DE| +1| +2| +3|     |BC| +1| +2| +3|
+;;  Values   [y1][h1][x1][w1] ....[y2][h2][x2][w2] 
+;;
+;; Returns Carry Flag (C=0, NC) when NOT colliding,
+;;                and (C=1,  C) when colliding.
+;;
+;; INPUT:
+;;     DE: Address of AABB 1
+;;     BC: Pointer of AABB 2
+;; OUTPUT:
+;;     Carry: { NC: Not colliding } { C: colliding }
+are_boxes_colliding::
+  push de
+  push bc
+  call are_intervals_overlapping
+  pop bc
+  pop de
+  
+  ret nc
+
+  inc de
+  inc de 
+  inc bc
+  inc bc
+  call are_intervals_overlapping
+ret  
+
 update_map_scroll::
   ret
 
@@ -374,4 +501,11 @@ render::
   ld de, _OAM
   ld bc, 3 * OAM_SLOT_SIZE
   call memcpy
+
+  ld hl, general_entities_mem
+  ld de, _OAM + (3 * OAM_SLOT_SIZE)
+  ld bc, OAM_SLOT_SIZE
+  call memcpy
+
   ret
+
