@@ -158,7 +158,7 @@ def ENT_W_HITBOX rb 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 def SCRN_LINE_JUMP equ $20
-def SCRN_WIDTH_IN_TILES equ 19
+def SCRN_WIDTH_IN_TILES equ 20
 def SCRN_HEIGHT_IN_TILES equ 18
 
 def SCRN_PX_WIDTH equ 152
