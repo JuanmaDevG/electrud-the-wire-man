@@ -89,6 +89,7 @@ def CENTER_COL_OFFSET equ (SCRN_WIDTH_IN_TILES / 2)
 gameover_text: db "Game Over"
 restart_text: db "Press A to play"
 show_gameover_screen::
+  call clear_screen
   ld hl, gameover_text
   ld de, _SCRN0 + CENTER_ROW_OFFSET - SCRN_LINE_JUMP + CENTER_COL_OFFSET - (GAMEOVER_TXT_LEN / 2)
   ld bc, GAMEOVER_TXT_LEN
