@@ -116,7 +116,7 @@ move_player_horizontally::
   .move_left:
     ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
     bit INPUT_BIT_LEFT, a
-    ret z
+    jr z, .no_move
 
     push de 
     dec [hl]
@@ -131,7 +131,16 @@ move_player_horizontally::
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
     set ENT_FLAGS_BIT_X_FLIP, [hl]
     ld hl, COMPONENT_SPRITES + ENT_FLAGS
-    ;TODO: for both add extra behaviour if raysnake (reverse tile placement)
+    ret
+  .no_move:
+    ld hl, COMPONENT_PHYSICS + E_WALK_STEP_COUNTER
+    ld [hl], E_WALK_STEP_COUNTER_RELOAD
+    ld hl, COMPONENT_PHYSICS + E_FLAGS
+    ld a, [hl]
+    and %11100111
+    ld [hl], a
+    ld hl, COMPONENT_SPRITES + OAM_SLOT_SIZE + ENT_TILE
+    ld [hl], E_TILE_BODY
     ret
 
 truly_move_electrud:
@@ -159,6 +168,7 @@ truly_move_electrud:
     inc hl                ; ENT_X
     ld [hl], c
 ret
+
 
 ; DESTROY: hl, de, bc, af
 e_action_buttons::
@@ -204,15 +214,13 @@ _transform_elec_2_rsnk::
   ld l, ENT_FLAGS + OAM_SLOT_SIZE
   ld [hl], a
   ld l, ENT_FLAGS + (2 * OAM_SLOT_SIZE)
+  ld [hl], a
   ld hl, COMPONENT_PHYSICS + E_FLAGS
   ld [hl], %11100000 ; ALIVE, RAYSNAKE, NO_GROUND, !WALK_STEP1, !WALK_STEP2, !BLINK
   inc l
   ld [hl], E_TRANSFORM_COUNTER_RELOAD
   inc l
   ld [hl], E_BLINK_COUNTER_RELOAD
-  ret
-
-rsnk_action_buttons::
   ret
 
 

@@ -76,25 +76,10 @@ update_main_player::
   .player_is_alive:
   call flip_player_blink
   call move_player_horizontally
-  ld a, [COMPONENT_PHYSICS + E_FLAGS]
-  jr nz, .is_raysnake
-  .is_electrud:
-    call drop_player_until_floor
-    call e_action_buttons
-    ret nz
-    .is_on_the_ground:
-      call animate_ground_movement
-      ;TODO: correct right/left just to change WRAM sprite bit (by collecting input)
-      bit INPUT_BIT_RIGHT, b
-      call nz, animate_electrud_ground_move
-      bit INPUT_BIT_LEFT, b
-      call nz, animate_electrud_ground_move
-      ret
-  .is_raysnake:
-    call rsnk_action_buttons
-    call move_raysnake_vertically
-    ; NO COUNTER
-    ret
+  ; call drop_player_until_floor
+  ; call e_action_buttons
+  call animate_electrud_ground_move
+  ret
 
 
 def GAMEOVER_TXT_LEN equ 9
@@ -399,6 +384,7 @@ collide_down_with_tiles::
 
     ; Si no hay más columnas, no hay colisión y volvemos
     pop hl
+    add 0 ; Set to zero the carry flag
   ret
 
   .blocked_down:
