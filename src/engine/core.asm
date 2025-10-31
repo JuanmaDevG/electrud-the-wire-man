@@ -1,11 +1,13 @@
 include "definitions/constants.inc"
 include "definitions/font.inc"
 include "definitions/electrud.inc"
+include "definitions/enemies.inc"
 include "definitions/macros.inc"
 
 def FONT_LOAD_POINT = _VRAM + TILE_SIZE
 def TILES_LOAD_POINT = FONT_LOAD_POINT + (FONT_CHAR_COUNT * TILE_SIZE)
-def BRICKS_LOAD_POINT = TILES_LOAD_POINT ;TODO: read about compile-time variables
+def OTHER_TILES_LOAD_POINT = TILES_LOAD_POINT + (ELECTRUD_TILE_COUNT * TILE_SIZE);TODO: read about compile-time variables
+def ENEMY1_TILES_LOAD_POINT = OTHER_TILES_LOAD_POINT + (GENERAL_TILES_TILE_COUNT * TILE_SIZE)
 
 SECTION "Game Engine", ROM0
 
@@ -15,7 +17,9 @@ load_engine::
   call memcpy
   Load_hldebc electrud_tiles, TILES_LOAD_POINT, ELECTRUD_TILES_BYTE_SIZE
   call memcpy
-  Load_hldebc brick_tiles, BRICKS_LOAD_POINT, 1
+  Load_hldebc general_tiles, OTHER_TILES_LOAD_POINT, GENERAL_TILES_BYTE_SIZE
+  call memcpy
+  Load_hldebc enemy1_tiles, ENEMY1_TILES_LOAD_POINT, ENEMY1_TILES_BYTE_SIZE
   call memcpy
   .set_palettes:
   ld a, %11100100
@@ -23,11 +27,21 @@ load_engine::
   ld [hl+], a
   ld [hl+], a
   ld [hl+], a
-  .initial_scene: ;TODO: later more complex level loads
-  Load_hlabc SCRN_GROUND_TILES, TILE_BRICK, SCRN_WIDTH_IN_TILES
+  .clear_screen: call clear_screen
+  .initial_scene:
+  Load_hlabc SCRN_GROUND_TILES, TILE_BRICK +1, SCRN_WIDTH_IN_TILES
   call memset
+    .side_walls:
+      ld hl, _SCRN0
+      ld b, SCRN_HEIGHT_IN_TILES -1
+      ld c, TILE_BRICK +2
+      ld a, b
+      call vertical_screen_fill
+      ld hl, _SCRN0 + SCRN_WIDTH_IN_TILES -1
+      ld b, a
+      call vertical_screen_fill
   .clear_sprites_mem:
-  Load_hlabc _WRAM, 0, MEM_LINE_SIZE
+  Load_hlabc _WRAM, 0, MEM_LINE_SIZE * 10
   call memset
   Load_hlabc _OAM, 0, OAM_BYTESIZE
   call memset
@@ -50,6 +64,17 @@ load_engine::
   ld de, COMPONENT_HITBOX
   ld bc, ELECTRUD_INIT_HITBOX_COMPONENT_SIZE
   call memcpy
+
+  ld hl, engine_data
+  ld [hl], BALL_SPAWN_RATE_RELOAD
+  inc l
+  ld [hl], BALL_RANDOM_SEED_RELOAD
+
+  .load_dma_routine:
+  ld hl, run_dma
+  ld de, run_dma_hram
+  ld bc, 12
+  call memcpy
   ret
 
 
@@ -60,6 +85,7 @@ update_main_player::
   .revive_player:
   call wait_vblank_start
   call lcdc_off
+  call show_gameover_screen
   call load_engine
   call lcdc_on
   .player_is_alive:
@@ -71,8 +97,68 @@ update_main_player::
   ret
 
 
+def GAMEOVER_TXT_LEN equ 9
+def RESTART_TXT_LEN equ 15
+def CENTER_ROW_OFFSET equ (SCRN_LINE_JUMP * (SCRN_HEIGHT_IN_TILES / 2))
+def CENTER_COL_OFFSET equ (SCRN_WIDTH_IN_TILES / 2)
+gameover_text: db "Game Over"
+restart_text: db "Press A to play"
+show_gameover_screen::
+  call clear_screen
+  ld hl, gameover_text
+  ld de, _SCRN0 + CENTER_ROW_OFFSET - SCRN_LINE_JUMP + CENTER_COL_OFFSET - (GAMEOVER_TXT_LEN / 2)
+  ld bc, GAMEOVER_TXT_LEN
+  call memcpy
+  ld hl, restart_text
+  ld de, _SCRN0 + CENTER_ROW_OFFSET + SCRN_LINE_JUMP + CENTER_COL_OFFSET - (RESTART_TXT_LEN / 2)
+  ld bc, RESTART_TXT_LEN
+  call memcpy
+  .clean_oam:
+  Load_hlabc _OAM, 0, OAM_BYTESIZE
+  call memset
+  call lcdc_on
+  .wait_input_a:
+    call get_input
+    ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
+    bit INPUT_BIT_A, a
+    jr z, .wait_input_a
+  call wait_vblank_start
+  call lcdc_off
+  ret
+
+
+; INPUT: no
+; DESTROY: hl, bc, a
+; WARNIGN: ensure lcdc is off
+clear_screen::
+  ld hl, _SCRN0
+  ld bc, _SCRN1 - _SCRN0
+  xor a
+  call memset
+  ret
+
+
+; DESTROY: af, hl, de, bc
 update_entities::
-  ;TODO: animate projectiles
+  ld hl, ball_spawn_rate
+  .new_projectile:
+    dec [hl]
+    jr nz, .update_balls
+    ld [hl], BALL_SPAWN_RATE_RELOAD
+    call allocate_ball
+  .update_balls:
+  ld hl, general_entities_mem
+  ld b, BALL_SLOTS
+  .loop_update:
+    push hl
+    push bc
+    call update_ball
+    pop bc
+    pop hl
+    ld de, OAM_SLOT_SIZE
+    add hl, de
+    dec b
+    jr nz, .loop_update
   ret
 
 
@@ -358,16 +444,102 @@ collide_down_with_tiles::
 ret
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Checks if two integral intervals overlap in one dimension
+;; It receives the addresses of 2 intervals in memory 
+;; in HL and DE:
+;;
+;;   Address  |DE| +1|       |BC| +1|
+;;   Values   [p1][w1] ......[p2][w2] 
+;;
+;; Returns Carry Flag (C=0, NC) when NOT-Colliding,
+;;                and (C=1,  C) when overlapping.
+;;
+;; INPUT:   
+;;    DE: Address of Interval 1 (p1, w1)
+;;    BC: Address of Interval 2 (p2, w2)
+;;OUTPUT:  
+;;    Carry: { NC: No overlap }, { C: Overlap } 
+are_intervals_overlapping::
+  .whos_greater:
+    ld h, b 
+    ld l, c 
+    ld a, [de]
+    cp [hl]
+    jr c, .BC_is_greater
+
+  .DE_is_greater:
+    ld c, a       ; p1 
+    ld a, [hl+]   ; p2
+    add [hl]      ; + w2
+    ld b, a
+    ld a, c
+    cp b          ; p1 - (p2 + w2) -> si hay carry -> solapa
+    jp .end_check
+
+  .BC_is_greater:
+    ld c, a
+    inc de
+    ld a, [de]
+    add c
+    ld c, a
+    ld a, [hl]
+    cp c 
+
+  .end_check
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Checks if two Axis Aligned Bounding Boxes (AABB) are
+;; colliding. 
+;;  1. First, checks if they collide on the Y axis
+;;  2. Then checks the X axis, only if Y intervals overlap
+;;
+;; Receives in DE and HL the addresses of two AABBs:
+;;              --AABB 1--           --AABB 2--
+;;  Address  |DE| +1| +2| +3|     |BC| +1| +2| +3|
+;;  Values   [y1][h1][x1][w1] ....[y2][h2][x2][w2] 
+;;
+;; Returns Carry Flag (C=0, NC) when NOT colliding,
+;;                and (C=1,  C) when colliding.
+;;
+;; INPUT:
+;;     DE: Address of AABB 1
+;;     BC: Pointer of AABB 2
+;; OUTPUT:
+;;     Carry: { NC: Not colliding } { C: colliding }
+are_boxes_colliding::
+  push de
+  push bc
+  call are_intervals_overlapping
+  pop bc
+  pop de
+  
+  ret nc
+
+  inc de
+  inc de 
+  inc bc
+  inc bc
+  call are_intervals_overlapping
+ret  
+
 update_map_scroll::
   ret
 
 
 render::
   call wait_vblank_start
+  call run_dma_hram
+  ret
 
-  ;TODO: this update type is temporary
-  ld hl, COMPONENT_SPRITES
-  ld de, _OAM
-  ld bc, 3 * OAM_SLOT_SIZE
-  call memcpy
+
+; WARNING: this is (and must be) loaded in HRAM only because of hardware constraints
+run_dma::
+  ld a, HIGH(sprites_location)
+  ld [rDMA], a
+  ld a, 40      ; Wait 160 cycles (40 * 4)
+  .wait_dma:
+    dec a
+    jr nz, .wait_dma
   ret

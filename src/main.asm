@@ -16,6 +16,9 @@
 ;;-------------------------------------------------------------------------------------------------------------------------------;;
 include "definitions/constants.inc"
 
+;TODO: remove this
+include "definitions/electrud.inc"
+
 SECTION "Entry point", ROM0[$150]
 
 main::
