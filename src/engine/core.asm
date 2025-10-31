@@ -29,19 +29,19 @@ load_engine::
   ld [hl+], a
   .clear_screen: call clear_screen
   .initial_scene:
-  Load_hlabc SCRN_GROUND_TILES, TILE_BRICK, SCRN_WIDTH_IN_TILES
+  Load_hlabc SCRN_GROUND_TILES, TILE_BRICK +1, SCRN_WIDTH_IN_TILES
   call memset
     .side_walls:
       ld hl, _SCRN0
       ld b, SCRN_HEIGHT_IN_TILES -1
-      ld c, TILE_BRICK
+      ld c, TILE_BRICK +2
       ld a, b
       call vertical_screen_fill
       ld hl, _SCRN0 + SCRN_WIDTH_IN_TILES -1
       ld b, a
       call vertical_screen_fill
   .clear_sprites_mem:
-  Load_hlabc _WRAM, 0, MEM_LINE_SIZE
+  Load_hlabc _WRAM, 0, MEM_LINE_SIZE * 10
   call memset
   Load_hlabc _OAM, 0, OAM_BYTESIZE
   call memset
@@ -65,29 +65,16 @@ load_engine::
   ld bc, ELECTRUD_INIT_HITBOX_COMPONENT_SIZE
   call memcpy
 
-  ;JUST TO PROVE WITH ONE BALL, LATER WILL DELETE THIS
-  .load_ball:
-    ld a, 0
-    ld [general_entities_mem + ENT_Y], a
-    ld a, 80
-    ld [general_entities_mem + ENT_X], a
-    ld a, $5E
-    ld [general_entities_mem + ENT_TILE], a 
+  ld hl, engine_data
+  ld [hl], BALL_SPAWN_RATE_RELOAD
+  inc l
+  ld [hl], BALL_RANDOM_SEED_RELOAD
 
-
-    ld a, 0
-    ld [ball_hitbox + ENT_Y_HITBOX], a
-    ld a, 8
-    ld [ball_hitbox + ENT_H_HITBOX], a
-    ld a, 80
-    ld [ball_hitbox + ENT_X_HITBOX], a
-    ld a, 8
-    ld [ball_hitbox + ENT_W_HITBOX], a 
-
-    ld   a, 2                 ; vy = 2 px/frame
-    ld   [ball_physics+0], a
-    ld   a, 1                 ; alive_flag = 1
-    ld   [ball_physics+1], a
+  .load_dma_routine:
+  ld hl, run_dma
+  ld de, run_dma_hram
+  ld bc, 12
+  call memcpy
   ret
 
 
@@ -151,31 +138,27 @@ clear_screen::
   ret
 
 
+; DESTROY: af, hl, de, bc
 update_entities::
-  ;TODO: animate projectiles
-
-  ;first check counter to spawn another ball or not
-  ;second, check life and delete if it touched the floor
-  ;third, update position
-  ;fourth, check collision and mark his death
-  ;check player collision and mark player death
-  ;actualizamos el sprite
-  ; TODO ESTO ESTÁ EN update_ball 
-  
+  ld hl, ball_spawn_rate
+  .new_projectile:
+    dec [hl]
+    jr nz, .update_balls
+    ld [hl], BALL_SPAWN_RATE_RELOAD
+    call allocate_ball
+  .update_balls:
   ld hl, general_entities_mem
-  push hl
-  call update_ball 
-  pop hl
-  ;ld hl, general_entities_mem
-  ;ld b, NUM_BALLS           
-  ;.loop_update_balls:
-  ;  push hl
-  ;  call update_ball
-  ;  pop hl
-  ;  ld de, SIZE_OF_ENTITY
-  ;  add hl, de 
-  ;  dec b
-  ;  jr nz, .loop_update_balls
+  ld b, BALL_SLOTS
+  .loop_update:
+    push hl
+    push bc
+    call update_ball
+    pop bc
+    pop hl
+    ld de, OAM_SLOT_SIZE
+    add hl, de
+    dec b
+    jr nz, .loop_update
   ret
 
 
@@ -547,17 +530,16 @@ update_map_scroll::
 
 render::
   call wait_vblank_start
-
-  ;TODO: this update type is temporary
-  ld hl, COMPONENT_SPRITES
-  ld de, _OAM
-  ld bc, 3 * OAM_SLOT_SIZE
-  call memcpy
-
-  ld hl, general_entities_mem
-  ld de, _OAM + (3 * OAM_SLOT_SIZE)
-  ld bc, OAM_SLOT_SIZE
-  call memcpy
-
+  call run_dma_hram
   ret
 
+
+; WARNING: this is (and must be) loaded in HRAM only because of hardware constraints
+run_dma::
+  ld a, HIGH(sprites_location)
+  ld [rDMA], a
+  ld a, 40      ; Wait 160 cycles (40 * 4)
+  .wait_dma:
+    dec a
+    jr nz, .wait_dma
+  ret

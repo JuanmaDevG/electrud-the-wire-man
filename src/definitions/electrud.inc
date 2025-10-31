@@ -34,7 +34,9 @@ def E_TILE_EXPLOSION3              rb 1
 def E_TILE_EXPLOSION4              rb 1
 def RSNK_TILE_DASH1                rb 1
 def RSNK_TILE_DASH2                rb 1
-def TILE_BRICK                     rb 1 ;TODO: This is temporary
+def TILE_BRICK                     rb 1
+
+def TILE_BALL equ $5e
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

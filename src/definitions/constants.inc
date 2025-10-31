@@ -31,6 +31,7 @@ def rP1 equ $ff00
 def rLCDC equ $ff40
 def rSTAT equ $ff41
 def rLY equ $ff44
+def rDMA equ $ff46
 def rBGP equ $ff47
 def rOBP0 equ $ff48
 def rOBP1 equ $ff49
@@ -124,15 +125,10 @@ def ENT_FLAGS_BIT_VRAM_BANK   equ 3
 
 ; COMPONENT_PHYSICS
 rsreset
-def ENT_V 		            rb 1
-def ENT_V_COUNTER	        rb 1
 def ENT_PHYS_FLAGS 	      rb 1
 
 ; ENT_PHYS_FLAGS bit values
 def ENT_BIT_USED            equ 7
-def ENT_BIT_IS_PROJECTILE   equ 6
-def ENT_BIT_NO_MOVE         equ 5
-def ENT_BIT_GOES_RIGHT      equ 4
 
 def BLINK_COUNTER_RELOAD equ 3
 
@@ -151,6 +147,11 @@ def ENT_Y_HITBOX rb 1
 def ENT_H_HITBOX rb 1
 def ENT_X_HITBOX rb 1
 def ENT_W_HITBOX rb 1
+
+; Ball spawn
+def BALL_SPAWN_RATE_RELOAD equ 8
+def BALL_RANDOM_SEED_RELOAD equ %01010101
+def BALL_SLOTS equ 37
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

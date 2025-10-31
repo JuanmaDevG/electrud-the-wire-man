@@ -5,12 +5,76 @@ def MAIN_CHARACTER_OFFSET equ (3 * OAM_SLOT_SIZE)
 def ENT_START_WRITEPOINT equ (COMPONENT_SPRITES + MAIN_CHARACTER_OFFSET)
 
 SECTION "Entity management", ROM0
-; DESTROYS:
-allocate_projectile::
-  ;TODO: projectile in WRAM
+; INPUT: no
+; DESTROYS: hl, de, b, a
+allocate_ball::
+  ld hl, ball_physics +1 - OAM_SLOT_SIZE ; ball_physics.alive_byte
+  ld b, BALL_SLOTS
+  .loop:
+    ld a, l
+    add OAM_SLOT_SIZE
+    ld l, a
+    xor a
+    or [hl]
+    jr z, .make_new_ball ; Ball not alive, so make new
+    dec b
+    ret z ; Ball slot not found
+    jr .loop
+  .make_new_ball:
+    ld [hl], 1            ; Now ball alive
+    dec l
+    ld [hl], 2            ; vy (px per frame) = 2
+    dec h                 ; hl = general_entities_mem
+    push hl
+    xor a
+    ld [hl+], a           ; Y = 0
+    call random_next
+    ld [hl+], a           ; X = random [8 - 127]
+    ld [hl], TILE_BALL
+    inc l
+    ld [hl], 0
+    .init_hitbox:
+    pop hl
+    ld d, h
+    ld e, l
+    inc d
+    inc d                 ; de = ball_hitbox
+    ld a, [hl+]
+    ld [de], a            ; hitbox Y = Y
+    inc e
+    ld a, TILE_PX_HEIGHT
+    ld [de], a            ; hitbox H
+    inc e
+    ld a, [hl]
+    ld [de], a            ; hitbox X = X
+    inc e
+    ld a, TILE_PX_WIDTH
+    ld [de], a            ; hitbox W
   ret
 
 
+; DESTROY: de
+; RETURN: a = next random number
+random_next::
+  ld de, ball_random_seed
+  ld a, [de]
+  sla a
+  jr nc, .no_xor
+  xor $71
+  .no_xor:
+    ld [de], a  ; Set the raw next seed
+    and $7f     ; Purify random number X = [8 - 127] (to be inside the screen)
+    add TILE_PX_WIDTH
+    cp 128
+    ret nc
+    ret c
+    sub 112
+    add TILE_PX_WIDTH
+  ret
+
+
+; INPUT: hl = ball loc
+; DESTROY: hl, 
 update_ball::
     inc h                ; hl = C100 = component_physics
     inc hl               ; ENT_ALIVE_FLAG
@@ -18,13 +82,10 @@ update_ball::
     or a
     jr nz, .alive
 
-    ; Si está muerta, entonces la movemos para que desaparezca
-    dec hl
+    ; Si está muerta, entonces ponemos el sprite a nulo
+    inc l
     dec h
-    xor a
-    ld [hl], a
-    dec hl
-    ld [hl], a 
+    ld [hl], 0 ; REMOVE SPRITE
 
   .alive:
     ; HL = C101

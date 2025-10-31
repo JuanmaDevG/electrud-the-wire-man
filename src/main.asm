@@ -29,15 +29,6 @@ main::
 
   .mainloop:
     call get_input
-
-    ; TODO: delete this, is temporary
-    ld a, [COMPONENT_PHYSICS + E_PLAYER_INPUT]
-    bit INPUT_BIT_B, a
-    jr z, .not_kill
-      ld hl, COMPONENT_PHYSICS + E_FLAGS
-      res E_BIT_ALIVE, [hl]
-    .not_kill:
-
     call update_main_player
     call update_entities
     call update_map_scroll
